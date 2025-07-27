@@ -1,0 +1,314 @@
+{
+    "Kategori Hewan": {
+        "Karnivora": [
+            "Pinguicula",
+            "Aldrovandra",
+            "Panda",
+            "Capung",
+            "Musang",
+            "Drosera",
+            "Kalajengking",
+            "Tukan"
+        ],
+        "Bukan Karnivora": [
+            "Semut",
+            "Kuda Nil",
+            "Marmut"
+        ],
+        "Herbivora": [
+            "Iguana",
+            "Kolibri",
+            "Lembu Laut",
+            "Kuda Nil",
+            "Dugong",
+            "Ngengat",
+            "Gazel",
+            "Badak"
+        ],
+        "Omnivora": [
+            "Gorila",
+            "Bajing Tanah",
+            "Beruang",
+            "Billfish",
+            "Burung Unta"
+        ],
+        "Anonim (Tidak Dikategorikan)": [
+            "Rafflesia"
+        ],
+        "Reptil": [
+            "Penyu",
+            "Iguana",
+            "Komodo",
+            "Kura-Kura",
+            "Alligator",
+            "Gavial",
+            "Ular Laut"
+        ],
+        "Mamalia": [
+            "Lembu Laut (Herbivora)",
+            "Narwhal",
+            "Porpoise",
+            "Armadillo",
+            "Panda",
+            "Kerbau"
+        ],
+        "Yang Tidak Bisa Terbang": [
+            "Kasuari",
+            "Takahe",
+            "Kiwi",
+            "Rhea"
+        ],
+        "Bernapas Menggunakan Kulit": [
+            "Cacing Tanah",
+            "Tembakul",
+            "Kodok"
+        ],
+        "Serangga": [
+            "Ulat",
+            "Kumbang",
+            "Belalang",
+            "Kutu",
+            "Jangkrik"
+        ],
+        "Yang Bisa Melompat (Daftar ini sepertinya salah, perlu dikoreksi)": [
+            "Siput",
+            "Kura-kura"
+        ]
+    },
+    "Shio Cina": {
+        "Daftar Shio": [
+            "Tikus (Rat)",
+            "Kerbau (Ox)",
+            "Harimau (Tiger)",
+            "Kelinci (Rabbit)",
+            "Naga (Dragon)",
+            "Ular (Snake)",
+            "Kuda (Horse)",
+            "Kambing/Domba (Goat/Sheep)",
+            "Monyet (Monkey)",
+            "Ayam Jago (Rooster)",
+            "Anjing (Dog)",
+            "Babi (Pig)"
+        ],
+        "Kelompok Elemen": {
+            "Kayu": [
+                "Harimau (Tiger)",
+                "Kelinci (Rabbit)"
+            ],
+            "Air": [
+                "Tikus (Rat)",
+                "Babi (Pig)"
+            ],
+            "Api": [
+                "Ular (Snake)",
+                "Kuda (Horse)"
+            ],
+            "Logam": [
+                "Monyet (Monkey)",
+                "Ayam Jago (Rooster)"
+            ],
+            "Tanah": [
+                "Kerbau (Ox)",
+                "Naga (Dragon)",
+                "Kambing/Domba (Goat/Sheep)",
+                "Anjing (Dog)"
+            ]
+        },
+        "Kelompok Kompatibilitas": {
+            "Grup 1": [
+                "Tikus (Rat)",
+                "Naga (Dragon)",
+                "Monyet (Monkey)"
+            ],
+            "Grup 2": [
+                "Kerbau (Ox)",
+                "Ular (Snake)",
+                "Ayam Jago (Rooster)"
+            ],
+            "Grup 3": [
+                "Harimau (Tiger)",
+                "Kuda (Horse)",
+                "Anjing (Dog)"
+            ],
+            "Grup 4": [
+                "Kelinci (Rabbit)",
+                "Kambing/Domba (Goat/Sheep)",
+                "Babi (Pig)"
+            ]
+        }
+    },
+    "Lokasi Geografis & Kehidupan": {
+        "Yang Ditemukan di Kutub Selatan": [
+            "Anjing Laut Antartika",
+            "Penguin",
+            "Cormorant Antartika"
+        ],
+        "Yang Ditemukan di Kutub Utara": [
+            "Anjing Laut"
+        ],
+        "Yang Tidak Ditemukan di Kutub Selatan": [
+            "(Tidak ada item spesifik yang diberikan)"
+        ]
+    },
+    "Fitur Fisik & Karakteristik": {
+        "Yang Tidak Melompat": [
+            "Gajah"
+        ],
+        "Organ Terbesar Manusia": "Kulit",
+        "Jumlah Gigi Saat Dewasa": 32,
+        "Grup Otot Terlebar dalam Tubuh Manusia": "Bukan Rhomboid",
+        "Kuku Terbentuk dari Zat": "Keratin",
+        "Zat Pembentuk Kulit dan Rambut": "(Tidak ada item spesifik yang diberikan)",
+        "Terumbu Karang Terbesar Sedunia di Laut Coral": "Terumbu Penghalang Besar",
+        "Bertahan Paling Lama Tanpa Air": "Bukan Jerapah"
+    },
+    "Astronomi & Geografi": {
+        "Planet Berputar Searah Jarum Jam": "Venus",
+        "Jumlah Planet": 8,
+        "Suhu di Inti Bumi": "6000°C",
+        "Benua Terkecil": "Australia",
+        "Benua Terbesar": "Asia",
+        "Samudra Terbesar": "Samudra Pasifik",
+        "Samudra Terkecil": "Samudra Arktik",
+        "Persen Air Tawar di Bumi": "2.5%",
+        "Yang Dapat Diakses (Air Tawar)": "0.007%"
+    },
+    "Warna & Ilmu Pengetahuan": {
+        "Sinar Biru + Sinar Merah": "Magenta",
+        "Sinar Merah + Sinar Hijau": "Bukan Krem",
+        "Ametis": "Ungu",
+        "Yang Bisa Membuat Mutiara Meleleh": [
+            "Jus Lemon",
+            "Cuka"
+        ],
+        "Yang Tidak Bisa Membuat Mutiara Meleleh": "Bukan Cokelat Panas",
+        "Gas ke-6 yang Paling Banyak di Atmosfer": "Bukan Helium",
+        "Gas ke-62 yang Banyak Terdapat di Atmosfer": "Bukan Karbon Monoksida"
+    },
+    "Waktu & Kalender": {
+        "1 Abad": "36500 hari",
+        "Songkran": "13 April",
+        "Musim Gugur (Belahan Bumi Utara)": "23 September - 21 Desember",
+        "Musim Gugur (Belahan Bumi Selatan)": "21 Maret - 21 Juni",
+        "Hari Pertama Musim Semi (Astronomis)": "20 Maret - 21 Juni"
+    },
+    "Zodiak & Elemen (Barat)": {
+        "Zodiak Elemen Air": [
+            "Pisces",
+            "Scorpio",
+            "Cancer"
+        ],
+        "Zodiak Elemen Tanah": [
+            "Capri",
+            "Virgo",
+            "Taurus"
+        ],
+        "Urutan Zodiak": [
+            "Capricorn",
+            "Aquarius",
+            "Pisces",
+            "Aries",
+            "Taurus",
+            "Gemini",
+            "Cancer",
+            "Leo",
+            "Virgo",
+            "Libra",
+            "Scorpio",
+            "Sagitarius"
+        ]
+    },
+    "Hari Kebangsaan": {
+        "Jepang": "11 Februari",
+        "Singapura": "9 Agustus",
+        "Brazil": "7 September",
+        "Vietnam": "2 September 1945",
+        "Italia": "2 Juni",
+        "Cina": "1 Oktober",
+        "Amerika": "4 Juli",
+        "Spanyol": "12 Oktober",
+        "Jerman": "3 Oktober",
+        "Thailand": "5 Desember",
+        "Filipina": "12 Juni",
+        "Malaysia": "31 Agustus"
+    },
+    "Musik": {
+        "Senar Biola": 4,
+        "Tangga Musik dalam Satu Oktaf": 8,
+        "Alat Musik": {
+            "Piano": "Perkusi",
+            "Basun": "Tiup",
+            "Celesta": "(Tidak ada deskripsi)",
+            "Bandoneon": "Aerofon, ada yang mengatakan alat musik tiup, keyboard",
+            "Pikolo": "Seruling Tiup",
+            "Marimba": "Dipukul menggunakan stik seperti keyboard tapi dipukul",
+            "Zurma": "Tiup",
+            "Tamborin": "Pukul",
+            "Okarina": "Tiup",
+            "Obo": "Tiup",
+            "Clavinet": "Bukan Tiup",
+            "Akordeon": "Bukan Keyboard"
+        }
+    },
+    "Lain-lain": {
+        "Yang Tidak Bisa Ditemukan Saat Memancing": "Ranjang Laut",
+        "Yang Tidak Bisa Ditemukan di Rumah Mojo": "Rak Buku",
+        "Yang Mudah Rusak": [
+            "Anggur",
+            "Beras Merah"
+        ],
+        "Yang Tidak Mudah Rusak": "Madu",
+        "Yang Tidak Beracun": "Pari Torpedo",
+        "Makanan yang Tidak Ampuh Membangunkan": [
+            "Cookie",
+            "Kue Lapis Stroberi",
+            "Cuka Putih Suling"
+        ],
+        "Makanan yang Ampuh Membangunkan": [
+            "Apel Merah",
+            "Pisang",
+            "Cokelat Panas"
+        ],
+        "Maksimum Kertas Dilipat": "(Tidak ada item spesifik yang diberikan)",
+        "Batas Maks Kertas Dilipat": "(Tidak ada item spesifik yang diberikan)",
+        "Pencipta David Tembaga, di Bargello": "Bukan Michelangelo, Bukan Donarte Levidi, Bukan Salvador Doli",
+        "Pencipta The Scream": "Edward Munch",
+        "Pencipta Pieta": "Michelangelo",
+        "Pelukis The Persistence of Memory": "Salvador Doli",
+        "Pencipta The Sistine Madonna": "(Tidak ada item spesifik yang diberikan)"
+    },
+    "Ikan Bulan Juni": {
+        "Muncul di Bulan Juni": [
+            "Ikan Nyamuk",
+            "Neon Tetra",
+            "Cupang Ekor Mahkota",
+            "Ikan Ceri Barb",
+            "Banded Leporinus",
+            "Ikan Pari",
+            "Hiu Paus",
+            "Arwana Mata Belo",
+            "Biru Polka",
+            "Gararufa",
+            "Bintik Hati"
+        ],
+        "Tidak Muncul di Bulan Juni": [
+            "Tuna Sirip Biru Atlantik",
+            "Tuna Biru Selatan"
+        ]
+    },
+    "Ikan Siang & Malam": {
+        "Ikan Siang": [
+            "Ikan Mata Merah",
+            "Banded Leporinus",
+            "Ikan Buntal",
+            "Ikan Biji Labu",
+            "Ikan Mungil",
+            "Tompel Pink"
+        ],
+        "Ikan Malam": [
+            "Denison Duri",
+            "Cumi Colosal",
+            "Pelangi Boesemani"
+        ]
+    }
+}
