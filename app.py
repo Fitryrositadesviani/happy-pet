@@ -2,20 +2,26 @@ import streamlit as st
 import json
 import os
 
-# Nama file untuk menyimpan catatan
-DATA_FILE = 'notes.json'
+# Nama file untuk menyimpan catatan yang ditambahkan/diedit pengguna
+USER_NOTES_FILE = 'user_notes.json'
+# Nama file untuk menyimpan catatan default (yang bisa diedit admin)
+DEFAULT_NOTES_FILE = 'default_notes.json'
 
-def load_notes():
-    """Memuat catatan dari file JSON."""
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
+def load_json_data(file_path):
+    """Memuat data dari file JSON."""
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            st.error(f"Error: Gagal membaca file JSON '{file_path}'. Pastikan formatnya benar.")
+            return {}
     return {}
 
-def save_notes(notes):
-    """Menyimpan catatan ke file JSON."""
-    with open(DATA_FILE, 'w', encoding='utf-8') as f:
-        json.dump(notes, f, indent=4, ensure_ascii=False)
+def save_json_data(data, file_path):
+    """Menyimpan data ke file JSON."""
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
 
 def display_section(title, items):
     """Fungsi pembantu untuk menampilkan bagian dengan bullet points."""
@@ -32,151 +38,14 @@ def display_section(title, items):
             else:
                 st.markdown(f"- **{key}**: {value}")
     else:
-        st.write(items) # Untuk kasus single line seperti "Planet: 8"
+        st.write(items) # Untuk kasus single line
 
-def display_notes_data():
+def display_notes_data(notes_data_to_display):
     """Menampilkan data catatan yang sudah ada dalam format rapi."""
     st.title("🗒️ Catatan Happy Pet & Pengetahuan Umum")
 
-    # Menggunakan kamus untuk menyimpan kategori dan itemnya
-    # Ini akan membuat struktur data lebih mudah dikelola
-    notes_data = {
-        "Kategori Hewan": {
-            "Karnivora": ["Pinguicula", "Aldrovandra", "Panda", "Capung", "Musang", "Drosera", "Kalajengking", "Tukan"],
-            "Bukan Karnivora": ["Semut", "Kuda Nil", "Marmut"],
-            "Herbivora": ["Iguana", "Kolibri", "Lembu Laut", "Kuda Nil", "Dugong", "Ngengat", "Gazel", "Badak"],
-            "Omnivora": ["Gorila", "Bajing Tanah", "Beruang", "Billfish", "Burung Unta"],
-            "Anonim (Tidak Dikategorikan)": ["Rafflesia"],
-            "Reptil": ["Penyu", "Iguana", "Komodo", "Kura-Kura", "Alligator", "Gavial", "Ular Laut"],
-            "Mamalia": ["Lembu Laut (Herbivora)", "Narwhal", "Porpoise", "Armadillo", "Panda", "Kerbau"],
-            "Yang Tidak Bisa Terbang": ["Kasuari", "Takahe", "Kiwi", "Rhea"],
-            "Bernapas Menggunakan Kulit": ["Cacing Tanah", "Tembakul", "Kodok"],
-            "Serangga": ["Ulat", "Kumbang", "Belalang", "Kutu", "Jangkrik"],
-            "Yang Bisa Melompat (Daftar ini sepertinya salah, perlu dikoreksi)": ["Siput", "Kura-kura"],
-        },
-        "Shio Cina": {
-            "Daftar Shio": ["Tikus", "Kerbau", "Harimau", "Kelinci", "Naga", "Ular", "Kuda", "Kambing/Domba", "Monyet", "Ayam Jago", "Anjing", "Babi"],
-            "Kelompok Elemen": {
-                "Kayu": ["Harimau", "Kelinci"],
-                "Air": ["Tikus", "Babi"],
-                "Api": ["Ular", "Kuda"],
-                "Logam": ["Monyet", "Ayam Jago"],
-                "Tanah": ["Kerbau", "Naga", "Kambing/Domba", "Anjing"],
-            },
-            "Kelompok Kompatibilitas": {
-                "Grup 1": ["Tikus", "Naga", "Monyet"],
-                "Grup 2": ["Kerbau", "Ular", "Ayam Jago"],
-                "Grup 3": ["Harimau", "Kuda", "Anjing"],
-                "Grup 4": ["Kelinci", "Kambing/Domba", "Babi"],
-            }
-        },
-        "Lokasi Geografis & Kehidupan": {
-            "Yang Ditemukan di Kutub Selatan": ["Anjing Laut Antartika", "Penguin", "Cormorant Antartika"],
-            "Yang Ditemukan di Kutub Utara": ["Anjing Laut"],
-            "Yang Tidak Ditemukan di Kutub Selatan": ["(Tidak ada item spesifik yang diberikan)"],
-        },
-        "Fitur Fisik & Karakteristik": {
-            "Yang Tidak Melompat": ["Gajah"],
-            "Organ Terbesar Manusia": "Kulit",
-            "Jumlah Gigi Saat Dewasa": 32,
-            "Grup Otot Terlebar dalam Tubuh Manusia": "Bukan Rhomboid",
-            "Kuku Terbentuk dari Zat": "Keratin",
-            "Zat Pembentuk Kulit dan Rambut": "(Tidak ada item spesifik yang diberikan)",
-            "Terumbu Karang Terbesar Sedunia di Laut Coral": "Terumbu Penghalang Besar",
-            "Bertahan Paling Lama Tanpa Air": "Bukan Jerapah",
-        },
-        "Astronomi & Geografi": {
-            "Planet Berputar Searah Jarum Jam": "Venus",
-            "Jumlah Planet": 8,
-            "Suhu di Inti Bumi": "6000°C",
-            "Benua Terkecil": "Australia",
-            "Benua Terbesar": "Asia",
-            "Samudra Terbesar": "Samudra Pasifik",
-            "Samudra Terkecil": "Samudra Arktik", # Diperbaiki menjadi Arktik
-            "Persen Air Tawar di Bumi": "2.5%",
-            "Yang Dapat Diakses (Air Tawar)": "0.007%",
-        },
-        "Warna & Ilmu Pengetahuan": {
-            "Sinar Biru + Sinar Merah": "Magenta",
-            "Sinar Merah + Sinar Hijau": "Bukan Krem",
-            "Ametis": "Ungu",
-            "Yang Bisa Membuat Mutiara Meleleh": ["Jus Lemon", "Cuka"],
-            "Yang Tidak Bisa Membuat Mutiara Meleleh": "Bukan Cokelat Panas",
-            "Gas ke-6 yang Paling Banyak di Atmosfer": "Bukan Helium",
-            "Gas ke-62 yang Banyak Terdapat di Atmosfer": "Bukan Karbon Monoksida",
-        },
-        "Waktu & Kalender": {
-            "1 Abad": "36500 hari",
-            "Songkran": "13 April",
-            "Musim Gugur (Belahan Bumi Utara)": "23 September - 21 Desember",
-            "Musim Gugur (Belahan Bumi Selatan)": "21 Maret - 21 Juni",
-            "Hari Pertama Musim Semi (Astronomis)": "20 Maret - 21 Juni",
-        },
-        "Zodiak & Elemen (Barat)": { # Diperjelas sebagai Zodiak Barat
-            "Zodiak Elemen Air": ["Pisces", "Scorpio", "Cancer"],
-            "Zodiak Elemen Tanah": ["Capri", "Virgo", "Taurus"],
-            "Urutan Zodiak": ["Capricorn", "Aquarius", "Pisces", "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagitarius"],
-        },
-        "Hari Kebangsaan": {
-            "Jepang": "11 Februari",
-            "Singapura": "9 Agustus",
-            "Brazil": "7 September",
-            "Vietnam": "2 September 1945",
-            "Italia": "2 Juni",
-            "Cina": "1 Oktober",
-            "Amerika": "4 Juli",
-            "Spanyol": "12 Oktober",
-            "Jerman": "3 Oktober",
-            "Thailand": "5 Desember",
-            "Filipina": "12 Juni",
-            "Malaysia": "31 Agustus",
-        },
-        "Musik": {
-            "Senar Biola": 4,
-            "Tangga Musik dalam Satu Oktaf": 8,
-            "Alat Musik": {
-                "Piano": "Perkusi",
-                "Basun": "Tiup",
-                "Celesta": "(Tidak ada deskripsi)",
-                "Bandoneon": "Aerofon, ada yang mengatakan alat musik tiup, keyboard",
-                "Pikolo": "Seruling Tiup",
-                "Marimba": "Dipukul menggunakan stik seperti keyboard tapi dipukul",
-                "Zurma": "Tiup",
-                "Tamborin": "Pukul",
-                "Okarina": "Tiup",
-                "Obo": "Tiup",
-                "Clavinet": "Bukan Tiup",
-                "Akordeon": "Bukan Keyboard",
-            },
-        },
-        "Lain-lain": {
-            "Yang Tidak Bisa Ditemukan Saat Memancing": "Ranjang Laut",
-            "Yang Tidak Bisa Ditemukan di Rumah Mojo": "Rak Buku",
-            "Yang Mudah Rusak": ["Anggur", "Beras Merah"],
-            "Yang Tidak Mudah Rusak": "Madu",
-            "Yang Tidak Beracun": "Pari Torpedo",
-            "Makanan yang Tidak Ampuh Membangunkan": ["Cookie", "Kue Lapis Stroberi", "Cuka Putih Suling"],
-            "Makanan yang Ampuh Membangunkan": ["Apel Merah", "Pisang", "Cokelat Panas"],
-            "Maksimum Kertas Dilipat": "(Tidak ada item spesifik yang diberikan)",
-            "Batas Maks Kertas Dilipat": "(Tidak ada item spesifik yang diberikan)",
-            "Pencipta David Tembaga, di Bargello": "Bukan Michelangelo, Bukan Donarte Levidi, Bukan Salvador Doli",
-            "Pencipta The Scream": "Edward Munch",
-            "Pencipta Pieta": "Michelangelo",
-            "Pelukis The Persistence of Memory": "Salvador Doli",
-            "Pencipta The Sistine Madonna": "(Tidak ada item spesifik yang diberikan)",
-        },
-        "Ikan Bulan Juni": {
-            "Muncul di Bulan Juni": ["Ikan Nyamuk", "Neon Tetra", "Cupang Ekor Mahkota", "Ikan Ceri Barb", "Banded Leporinus", "Ikan Pari", "Hiu Paus", "Arwana Mata Belo", "Biru Polka", "Gararufa", "Bintik Hati"],
-            "Tidak Muncul di Bulan Juni": ["Tuna Sirip Biru Atlantik", "Tuna Biru Selatan"],
-        },
-        "Ikan Siang & Malam": {
-            "Ikan Siang": ["Ikan Mata Merah", "Banded Leporinus", "Ikan Buntal", "Ikan Biji Labu", "Ikan Mungil", "Tompel Pink"],
-            "Ikan Malam": ["Denison Duri", "Cumi Colosal", "Pelangi Boesemani"],
-        }
-    }
-
     # Menampilkan setiap bagian
-    for category, content in notes_data.items():
+    for category, content in notes_data_to_display.items():
         st.header(f"✨ {category}")
         if isinstance(content, dict):
             for sub_category, items in content.items():
@@ -185,17 +54,21 @@ def display_notes_data():
             for item in content:
                 st.markdown(f"- {item}")
         else:
-            st.write(content) # Untuk kategori yang langsung berupa string
+            st.write(content)
 
 
 def main():
     st.set_page_config(layout="wide")
 
     st.sidebar.title("Navigasi")
-    page_selection = st.sidebar.radio("Pilih Halaman", ["Lihat Catatan Tersimpan", "Tambah Catatan Baru", "Catatan Default Happy Pet"])
+    page_selection = st.sidebar.radio("Pilih Halaman", ["Lihat Catatan Tersimpan", "Tambah Catatan Baru", "Catatan Default Happy Pet", "Edit Catatan Default"])
 
     if page_selection == "Catatan Default Happy Pet":
-        display_notes_data()
+        default_notes = load_json_data(DEFAULT_NOTES_FILE)
+        if default_notes:
+            display_notes_data(default_notes)
+        else:
+            st.info("Tidak ada catatan default yang ditemukan atau ada kesalahan saat memuat.")
 
     elif page_selection == "Tambah Catatan Baru":
         st.title("➕ Tambah Catatan Baru")
@@ -204,11 +77,11 @@ def main():
 
         if st.button("Simpan Catatan"):
             if note_title and note_content:
-                notes = load_notes()
+                notes = load_json_data(USER_NOTES_FILE)
                 if "user_notes" not in notes:
                     notes["user_notes"] = {}
                 notes["user_notes"][note_title] = note_content
-                save_notes(notes)
+                save_json_data(notes, USER_NOTES_FILE)
                 st.success("Catatan berhasil disimpan!")
                 st.write(f"**Judul:** {note_title}")
                 st.write(f"**Isi:** {note_content}")
@@ -217,7 +90,7 @@ def main():
 
     elif page_selection == "Lihat Catatan Tersimpan":
         st.title("📚 Catatan Anda")
-        notes = load_notes()
+        notes = load_json_data(USER_NOTES_FILE)
 
         if "user_notes" in notes and notes["user_notes"]:
             st.write("Berikut adalah catatan yang Anda simpan:")
@@ -231,7 +104,7 @@ def main():
                     st.markdown("<br>", unsafe_allow_html=True) # Jarak agar tombol tidak terlalu dekat
                     if st.button(f"Hapus '{title}'", key=f"delete_{title}"):
                         del notes["user_notes"][title]
-                        save_notes(notes)
+                        save_json_data(notes, USER_NOTES_FILE)
                         st.experimental_rerun() # Refresh halaman setelah menghapus
 
             # Bagian untuk mengedit catatan
@@ -240,36 +113,161 @@ def main():
             selected_note_to_edit = st.selectbox(
                 "Pilih catatan untuk diedit:",
                 [""] + list(notes["user_notes"].keys()),
-                key="select_edit_note"
+                key="select_user_note_to_edit"
             )
 
             if selected_note_to_edit:
-                # Inisialisasi session_state jika belum ada
-                if 'edited_title' not in st.session_state or st.session_state.edited_title != selected_note_to_edit:
-                    st.session_state.edited_title = selected_note_to_edit
-                    st.session_state.edited_content = notes["user_notes"][selected_note_to_edit]
+                if 'edited_user_title' not in st.session_state or st.session_state.edited_user_title != selected_note_to_edit:
+                    st.session_state.edited_user_title = selected_note_to_edit
+                    st.session_state.edited_user_content = notes["user_notes"][selected_note_to_edit]
 
-                new_title = st.text_input("Judul Baru:", value=st.session_state.edited_title, key="edit_title_input")
-                new_content = st.text_area("Isi Baru:", value=st.session_state.edited_content, height=200, key="edit_content_area")
+                new_title = st.text_input("Judul Baru:", value=st.session_state.edited_user_title, key="edit_user_title_input")
+                new_content = st.text_area("Isi Baru:", value=st.session_state.edited_user_content, height=200, key="edit_user_content_area")
 
-                if st.button("Update Catatan", key="update_note_button"):
+                if st.button("Update Catatan", key="update_user_note_button"):
                     if new_title and new_content:
-                        # Hapus catatan lama jika judul berubah
-                        if new_title != st.session_state.edited_title:
-                            del notes["user_notes"][st.session_state.edited_title]
+                        if new_title != st.session_state.edited_user_title:
+                            del notes["user_notes"][st.session_state.edited_user_title]
                         notes["user_notes"][new_title] = new_content
-                        save_notes(notes)
+                        save_json_data(notes, USER_NOTES_FILE)
                         st.success("Catatan berhasil diperbarui!")
-                        # Clear session state for editing after update
-                        if 'edited_title' in st.session_state:
-                            del st.session_state.edited_title
-                        if 'edited_content' in st.session_state:
-                            del st.session_state.edited_content
-                        st.experimental_rerun() # Refresh halaman setelah memperbarui
+                        if 'edited_user_title' in st.session_state:
+                            del st.session_state.edited_user_title
+                        if 'edited_user_content' in st.session_state:
+                            del st.session_state.edited_user_content
+                        st.experimental_rerun()
                     else:
                         st.warning("Judul dan isi catatan tidak boleh kosong.")
         else:
             st.info("Anda belum memiliki catatan yang disimpan.")
+
+    elif page_selection == "Edit Catatan Default":
+        st.title("⚙️ Edit Catatan Default Happy Pet")
+        st.warning("Halaman ini ditujukan untuk mengedit catatan default. Perubahan di sini akan mempengaruhi semua pengguna.")
+
+        default_notes = load_json_data(DEFAULT_NOTES_FILE)
+
+        if not default_notes:
+            st.error("Tidak dapat memuat catatan default untuk diedit. Pastikan file 'default_notes.json' ada dan formatnya benar.")
+            return
+
+        # Tampilkan kategori dan sub-kategori untuk diedit
+        st.subheader("Pilih Kategori untuk Diedit:")
+        categories = list(default_notes.keys())
+        selected_category = st.selectbox("Pilih Kategori:", [""] + categories, key="edit_default_category_select")
+
+        if selected_category:
+            category_content = default_notes[selected_category]
+
+            # Jika konten kategori adalah dictionary (ada sub-kategori)
+            if isinstance(category_content, dict):
+                st.subheader(f"Konten Kategori: {selected_category}")
+                sub_categories = list(category_content.keys())
+                selected_sub_category = st.selectbox(
+                    "Pilih Sub-Kategori:",
+                    [""] + sub_categories,
+                    key="edit_default_sub_category_select"
+                )
+
+                if selected_sub_category:
+                    item_content = category_content[selected_sub_category]
+
+                    st.markdown(f"**Mengedit: {selected_category} > {selected_sub_category}**")
+
+                    # Jika konten adalah list (daftar item)
+                    if isinstance(item_content, list):
+                        edited_list_str = st.text_area(
+                            "Edit daftar item (satu item per baris):",
+                            value="\n".join(item_content),
+                            height=250,
+                            key="edit_default_list_area"
+                        )
+                        updated_items = [item.strip() for item in edited_list_str.split('\n') if item.strip()]
+                        if st.button("Simpan Perubahan Sub-Kategori"):
+                            default_notes[selected_category][selected_sub_category] = updated_items
+                            save_json_data(default_notes, DEFAULT_NOTES_FILE)
+                            st.success("Catatan default berhasil diperbarui!")
+                            st.experimental_rerun()
+
+                    # Jika konten adalah string (nilai tunggal)
+                    elif isinstance(item_content, str):
+                        edited_str_value = st.text_input(
+                            "Edit nilai:",
+                            value=item_content,
+                            key="edit_default_string_input"
+                        )
+                        if st.button("Simpan Perubahan Sub-Kategori"):
+                            default_notes[selected_category][selected_sub_category] = edited_str_value
+                            save_json_data(default_notes, DEFAULT_NOTES_FILE)
+                            st.success("Catatan default berhasil diperbarui!")
+                            st.experimental_rerun()
+                    else:
+                        st.info("Tipe data tidak didukung untuk pengeditan langsung di sini (bukan daftar atau teks).")
+
+            # Jika konten kategori adalah list (daftar item langsung di bawah kategori)
+            elif isinstance(category_content, list):
+                st.subheader(f"Konten Kategori: {selected_category}")
+                edited_list_str = st.text_area(
+                    "Edit daftar item (satu item per baris):",
+                    value="\n".join(category_content),
+                    height=250,
+                    key="edit_default_category_list_area"
+                )
+                updated_items = [item.strip() for item in edited_list_str.split('\n') if item.strip()]
+                if st.button("Simpan Perubahan Kategori"):
+                    default_notes[selected_category] = updated_items
+                    save_json_data(default_notes, DEFAULT_NOTES_FILE)
+                    st.success("Catatan default berhasil diperbarui!")
+                    st.experimental_rerun()
+
+            # Jika konten kategori adalah string (nilai tunggal langsung di bawah kategori)
+            elif isinstance(category_content, str):
+                st.subheader(f"Konten Kategori: {selected_category}")
+                edited_str_value = st.text_input(
+                    "Edit nilai:",
+                    value=category_content,
+                    key="edit_default_category_string_input"
+                )
+                if st.button("Simpan Perubahan Kategori"):
+                    default_notes[selected_category] = edited_str_value
+                    save_json_data(default_notes, DEFAULT_NOTES_FILE)
+                    st.success("Catatan default berhasil diperbarui!")
+                    st.experimental_rerun()
+            else:
+                st.info("Tipe data tidak didukung untuk pengeditan langsung di sini (bukan daftar, teks, atau kamus).")
+
+        st.markdown("---")
+        st.subheader("Tambahkan Kategori Baru ke Catatan Default")
+        new_category_name = st.text_input("Nama Kategori Baru:", key="new_default_category_name")
+        new_category_type = st.radio("Tipe Konten Kategori Baru:", ["Daftar (item per baris)", "Teks Tunggal"], key="new_default_category_type")
+        new_category_content = st.text_area("Isi Kategori Baru (pisahkan dengan baris baru jika daftar):", height=150, key="new_default_category_content")
+
+        if st.button("Tambah Kategori Baru", key="add_new_default_category_button"):
+            if new_category_name and new_category_content:
+                if new_category_type == "Daftar (item per baris)":
+                    items = [item.strip() for item in new_category_content.split('\n') if item.strip()]
+                    default_notes[new_category_name] = items
+                else:
+                    default_notes[new_category_name] = new_category_content.strip()
+                save_json_data(default_notes, DEFAULT_NOTES_FILE)
+                st.success(f"Kategori '{new_category_name}' berhasil ditambahkan!")
+                st.experimental_rerun()
+            else:
+                st.warning("Nama kategori dan isi tidak boleh kosong.")
+
+        st.markdown("---")
+        st.subheader("Hapus Kategori dari Catatan Default")
+        category_to_delete = st.selectbox("Pilih Kategori yang akan dihapus:", [""] + categories, key="delete_default_category_select")
+        if category_to_delete and st.button(f"Hapus Kategori '{category_to_delete}'", key="delete_default_category_button"):
+            confirm = st.checkbox(f"Saya yakin ingin menghapus kategori '{category_to_delete}'", key="confirm_delete_default_category")
+            if confirm:
+                del default_notes[category_to_delete]
+                save_json_data(default_notes, DEFAULT_NOTES_FILE)
+                st.success(f"Kategori '{category_to_delete}' berhasil dihapus.")
+                st.experimental_rerun()
+            else:
+                st.info("Centang kotak konfirmasi untuk menghapus.")
+
 
 if __name__ == "__main__":
     main()
