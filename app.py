@@ -23,23 +23,20 @@ TEXT_COLOR = "#333333" # Abu-abu gelap untuk keterbacaan
 FONT = "sans-serif"
 
 # --- Definisi Warna Latar Belakang untuk Setiap Kategori ---
-# Anda bisa menambahkan atau mengubah warna di sini.
-# Gunakan warna pastel atau muted agar tidak terlalu mencolok.
 CATEGORY_COLORS = {
-    "Kategori Hewan": "#FFE0F0",  # Pink sangat terang
-    "Shio Cina": "#E0FFFF",       # Biru Langit sangat terang
-    "Lokasi Geografis & Kehidupan": "#E6F2FF", # Biru muda
-    "Fitur Fisik & Karakteristik": "#FFF2E6", # Orange pucat
-    "Astronomi & Geografi": "#F0E6FF", # Ungu sangat terang
-    "Warna & Ilmu Pengetahuan": "#E6FFEA", # Hijau muda
-    "Waktu & Kalender": "#FFE6E6", # Merah muda
-    "Zodiak & Elemen (Barat)": "#FFFFE0", # Kuning sangat terang
-    "Hari Kebangsaan": "#F5E6FF", # Lavender
-    "Musik": "#E0FFE0", # Mint green
-    "Lain-lain": "#FDFDBD", # Krem
-    "Ikan Bulan Juni": "#BFEFFF", # Sky blue
-    "Ikan Siang & Malam": "#ADD8E6" # Light blue
-    # Tambahkan lebih banyak kategori dan warna di sini
+    "Kategori Hewan": "#FFE0F0",
+    "Shio Cina": "#E0FFFF",
+    "Lokasi Geografis & Kehidupan": "#E6F2FF",
+    "Fitur Fisik & Karakteristik": "#FFF2E6",
+    "Astronomi & Geografi": "#F0E6FF",
+    "Warna & Ilmu Pengetahuan": "#E6FFEA",
+    "Waktu & Kalender": "#FFE6E6",
+    "Zodiak & Elemen (Barat)": "#FFFFE0",
+    "Hari Kebangsaan": "#F5E6FF",
+    "Musik": "#E0FFE0",
+    "Lain-lain": "#FDFDBD",
+    "Ikan Bulan Juni": "#BFEFFF",
+    "Ikan Siang & Malam": "#ADD8E6"
 }
 
 # --- CSS Kustom untuk Styling Aplikasi Secara Keseluruhan dan Kategori ---
@@ -71,14 +68,18 @@ st.markdown(f"""
     }}
 
     /* Mengatur ukuran font untuk subkategori */
-    h3 {{
-        font-size: 1.5em; /* 2 tingkat lebih besar dari default p (1em) */
+    /* Menggunakan p atau span untuk subkategori agar tidak terlalu besar */
+    .sub-category-title {{
+        font-weight: bold;
+        font-size: 1.2em; /* Sekitar 2 tingkat lebih besar dari teks biasa (1em) */
+        margin-bottom: 0; /* Hapus margin bawah default */
+        padding-bottom: 0; /* Hapus padding bawah default */
     }}
-    h4 {{
-        font-size: 1.25em; /* 1 tingkat lebih besar dari default p (1em) */
-    }}
-    .stMarkdown h3 + h4 {{ /* Jika h4 mengikuti h3 */
-        font-size: 1.2em; /* Sedikit lebih kecil dari h4 biasa */
+
+    .sub-category-item {{
+        margin-left: 20px; /* Indentasi untuk item */
+        margin-top: 0; /* Hapus margin atas default */
+        margin-bottom: 0; /* Hapus margin bawah default */
     }}
 
     /* Styling untuk Background Kategori */
@@ -87,6 +88,10 @@ st.markdown(f"""
         margin-bottom: 20px;
         border-radius: 10px;
         box-shadow: 2px 2px 8px rgba(0,0,0,0.1); /* Sedikit bayangan */
+    }}
+    /* Menghilangkan margin atas untuk bullet point pertama setelah judul sub-kategori */
+    .stMarkdown ul:first-of-type {{
+        margin-top: 0;
     }}
     </style>
     """, unsafe_allow_html=True)
@@ -113,48 +118,48 @@ def save_json_data(data, file_path):
         json.dump(data, f, indent=4, ensure_ascii=False)
 
 # --- Fungsi untuk Menampilkan Catatan ---
-def display_section(title, items, level=0):
-    """Fungsi pembantu untuk menampilkan bagian dengan bullet points."""
-    if level == 0:
-        st.subheader(title)
-    elif level == 1:
-        st.markdown(f"#### {title}")
-    elif level == 2:
-        st.markdown(f"##### {title}")
+def display_section_content(content_dict, level):
+    """Fungsi pembantu untuk menampilkan konten dictionary secara rekursif."""
+    for key, value in content_dict.items():
+        # Menampilkan nama sub-kategori dengan titik dua dan bold
+        # Menggunakan div dengan class kustom untuk kontrol font dan margin
+        st.markdown(f"<p class='sub-category-title'>{key}:</p>", unsafe_allow_html=True)
 
-    if isinstance(items, list):
-        for item in items:
-            st.markdown(f"- {item}")
-    elif isinstance(items, dict):
-        for key, value in items.items():
-            # Tambahan untuk warna latar belakang sub-kategori jika diperlukan
-            # st.markdown(f"<div style='background-color:#F5F5F5; padding: 5px; border-radius: 5px;'>", unsafe_allow_html=True)
-            if isinstance(value, (list, dict)):
-                st.markdown(f"- **{key}**:")
-                display_section("", value, level=level + 1)
-            else:
-                st.markdown(f"- **{key}**: {value}")
-            # st.markdown(f"</div>", unsafe_allow_html=True)
-    else:
-        st.markdown(f"- {items}")
+        if isinstance(value, list):
+            for item in value:
+                # Menampilkan item dengan indentasi, tanpa bullet
+                st.markdown(f"<p class='sub-category-item'>{item}</p>", unsafe_allow_html=True)
+            st.markdown("") # Tambahkan baris kosong setelah daftar item
+        elif isinstance(value, dict):
+            # Rekursif untuk sub-sub-kategori
+            # Tambahkan indentasi untuk sub-sub-kategori
+            st.markdown(f"<div style='margin-left: 20px;'>", unsafe_allow_html=True)
+            display_section_content(value, level + 1)
+            st.markdown(f"</div>", unsafe_allow_html=True)
+        else:
+            # Untuk nilai string tunggal di bawah sub-kategori
+            st.markdown(f"<p class='sub-category-item'>{value}</p>", unsafe_allow_html=True)
+        st.markdown("") # Tambahkan baris kosong setelah setiap sub-kategori
+
 
 def display_notes_data(notes_data_to_display):
     """Menampilkan data catatan yang sudah ada dalam format rapi."""
     st.title("📔 Catatan Happy Pet & Pengetahuan Umum")
 
     for category, content in notes_data_to_display.items():
-        # Dapatkan warna untuk kategori ini, jika tidak ada, gunakan warna latar belakang utama
-        bg_color = CATEGORY_COLORS.get(category, SECONDARY_BACKGROUND_COLOR) # Menggunakan warna latar belakang sekunder sebagai default
+        bg_color = CATEGORY_COLORS.get(category, SECONDARY_BACKGROUND_COLOR)
 
-        # Bungkus setiap kategori dalam div dengan gaya kustom
         st.markdown(f"<div class='category-card' style='background-color: {bg_color};'>", unsafe_allow_html=True)
         st.header(f"📍 {category}")
+
         if isinstance(content, dict):
-            for sub_category, items in content.items():
-                display_section(f"**{sub_category}**", items, level=1)
+            display_section_content(content, level=1) # Panggil fungsi baru untuk konten dikt
         elif isinstance(content, list):
-            display_section(f"**{category}**", content, level=0)
+            # Jika kategori langsung berisi list, tampilkan sebagai bullet biasa
+            for item in content:
+                st.markdown(f"- {item}")
         else:
+            # Jika kategori langsung berisi string
             st.markdown(f"- {content}")
         st.markdown(f"</div>", unsafe_allow_html=True)
 
