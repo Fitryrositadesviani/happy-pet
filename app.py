@@ -253,6 +253,17 @@ def edit_default_notes_page():
     st.title("⚙️ Edit Catatan Default Happy Pet")
     st.warning("Halaman ini ditujukan untuk mengedit catatan default. Perubahan di sini akan mempengaruhi semua pengguna.")
 
+    # Menampilkan pesan konfirmasi yang disimpan di session_state
+    if 'edit_default_message' in st.session_state and st.session_state.edit_default_message:
+        if st.session_state.edit_default_message_type == 'success':
+            st.success(st.session_state.edit_default_message)
+        elif st.session_state.edit_default_message_type == 'warning':
+            st.warning(st.session_state.edit_default_message)
+        elif st.session_state.edit_default_message_type == 'info':
+            st.info(st.session_state.edit_default_message)
+        st.session_state.edit_default_message = "" # Reset pesan setelah ditampilkan
+        st.session_state.edit_default_message_type = ""
+
     default_notes = load_json_data(DEFAULT_NOTES_FILE)
 
     if not default_notes:
@@ -277,7 +288,8 @@ def edit_default_notes_page():
     if st.button("Tambah Kategori Baru", key="add_new_default_category_button"):
         if new_category_name:
             if new_category_name in default_notes:
-                st.warning(f"Kategori '{new_category_name}' sudah ada. Silakan pilih nama lain atau edit yang sudah ada.")
+                st.session_state.edit_default_message = f"Kategori '{new_category_name}' sudah ada. Silakan pilih nama lain atau edit yang sudah ada."
+                st.session_state.edit_default_message_type = 'warning'
             else:
                 if new_category_type == "Daftar Item":
                     items = [item.strip() for item in (new_category_content or "").split('\n') if item.strip()]
@@ -288,10 +300,13 @@ def edit_default_notes_page():
                     default_notes[new_category_name] = {}
 
                 save_json_data(default_notes, DEFAULT_NOTES_FILE)
-                st.success(f"Kategori '{new_category_name}' berhasil ditambahkan!")
-                st.rerun()
+                st.session_state.edit_default_message = f"Kategori '{new_category_name}' berhasil ditambahkan!"
+                st.session_state.edit_default_message_type = 'success'
+            st.rerun()
         else:
-            st.warning("Nama kategori tidak boleh kosong.")
+            st.session_state.edit_default_message = "Nama kategori tidak boleh kosong."
+            st.session_state.edit_default_message_type = 'warning'
+            st.rerun() # Rerun juga untuk menampilkan warning
 
     # --- Edit Konten yang Ada ---
     st.markdown("---")
@@ -329,7 +344,8 @@ def edit_default_notes_page():
                     if st.button("Simpan Perubahan Sub-Kategori", key="save_sub_category_list_btn"):
                         default_notes[selected_category][selected_sub_category] = updated_items
                         save_json_data(default_notes, DEFAULT_NOTES_FILE)
-                        st.success(f"Sub-kategori '{selected_sub_category}' berhasil diperbarui!")
+                        st.session_state.edit_default_message = f"Sub-kategori '{selected_sub_category}' berhasil diperbarui!"
+                        st.session_state.edit_default_message_type = 'success'
                         st.rerun()
                 elif isinstance(current_sub_content, str):
                     edited_str_value = st.text_input(
@@ -340,7 +356,8 @@ def edit_default_notes_page():
                     if st.button("Simpan Perubahan Sub-Kategori", key="save_sub_category_string_btn"):
                         default_notes[selected_category][selected_sub_category] = edited_str_value
                         save_json_data(default_notes, DEFAULT_NOTES_FILE)
-                        st.success(f"Sub-kategori '{selected_sub_category}' berhasil diperbarui!")
+                        st.session_state.edit_default_message = f"Sub-kategori '{selected_sub_category}' berhasil diperbarui!"
+                        st.session_state.edit_default_message_type = 'success'
                         st.rerun()
                 elif isinstance(current_sub_content, dict):
                     st.info("Untuk mengedit lebih dalam (nested dictionary), Anda perlu memanipulasi JSON secara manual atau ini akan menjadi sangat kompleks.")
@@ -350,10 +367,12 @@ def edit_default_notes_page():
                         if st.button("Simpan Perubahan JSON Sub-Kategori", key="save_nested_dict_btn"):
                             default_notes[selected_category][selected_sub_category] = updated_dict
                             save_json_data(default_notes, DEFAULT_NOTES_FILE)
-                            st.success(f"Sub-kategori '{selected_sub_category}' berhasil diperbarui dari JSON!")
+                            st.session_state.edit_default_message = f"Sub-kategori '{selected_sub_category}' berhasil diperbarui dari JSON!"
+                            st.session_state.edit_default_message_type = 'success'
                             st.rerun()
                     except json.JSONDecodeError:
                         st.error("Format JSON tidak valid.")
+                        st.rerun() # Rerun untuk menampilkan pesan error JSON
 
             st.markdown("---")
             st.subheader("Tambahkan Sub-Kategori Baru")
@@ -364,7 +383,8 @@ def edit_default_notes_page():
             if st.button("Tambah Sub-Kategori Baru", key="add_new_sub_category_button"):
                 if new_sub_category_name and selected_category:
                     if new_sub_category_name in default_notes[selected_category]:
-                        st.warning(f"Sub-kategori '{new_sub_category_name}' sudah ada di '{selected_category}'. Silakan pilih nama lain atau edit yang sudah ada.")
+                        st.session_state.edit_default_message = f"Sub-kategori '{new_sub_category_name}' sudah ada di '{selected_category}'. Silakan pilih nama lain atau edit yang sudah ada."
+                        st.session_state.edit_default_message_type = 'warning'
                     else:
                         if new_sub_category_type == "Daftar Item":
                             items = [item.strip() for item in (new_sub_category_content_input or "").split('\n') if item.strip()]
@@ -373,10 +393,13 @@ def edit_default_notes_page():
                             default_notes[selected_category][new_sub_category_name] = (new_sub_category_content_input or "").strip()
 
                         save_json_data(default_notes, DEFAULT_NOTES_FILE)
-                        st.success(f"Sub-kategori '{new_sub_category_name}' berhasil ditambahkan ke '{selected_category}'!")
-                        st.rerun()
+                        st.session_state.edit_default_message = f"Sub-kategori '{new_sub_category_name}' berhasil ditambahkan ke '{selected_category}'!"
+                        st.session_state.edit_default_message_type = 'success'
+                    st.rerun()
                 else:
-                    st.warning("Nama sub-kategori dan isi tidak boleh kosong.")
+                    st.session_state.edit_default_message = "Nama sub-kategori dan isi tidak boleh kosong."
+                    st.session_state.edit_default_message_type = 'warning'
+                    st.rerun() # Rerun untuk menampilkan warning
 
             st.markdown("---")
             st.subheader("Hapus Sub-Kategori")
@@ -386,10 +409,13 @@ def edit_default_notes_page():
                 if confirm_sub:
                     del default_notes[selected_category][sub_category_to_delete]
                     save_json_data(default_notes, DEFAULT_NOTES_FILE)
-                    st.success(f"Sub-kategori '{sub_category_to_delete}' berhasil dihapus.")
+                    st.session_state.edit_default_message = f"Sub-kategori '{sub_category_to_delete}' berhasil dihapus."
+                    st.session_state.edit_default_message_type = 'success'
                     st.rerun()
                 else:
-                    st.info("Centang kotak konfirmasi untuk menghapus.")
+                    st.session_state.edit_default_message = "Centang kotak konfirmasi untuk menghapus."
+                    st.session_state.edit_default_message_type = 'info'
+                    st.rerun() # Rerun untuk menampilkan info
 
 
         elif isinstance(current_category_content, list):
@@ -403,7 +429,8 @@ def edit_default_notes_page():
             if st.button("Simpan Perubahan Kategori", key="save_category_list_btn"):
                 default_notes[selected_category] = updated_items
                 save_json_data(default_notes, DEFAULT_NOTES_FILE)
-                st.success(f"Kategori '{selected_category}' berhasil diperbarui!")
+                st.session_state.edit_default_message = f"Kategori '{selected_category}' berhasil diperbarui!"
+                st.session_state.edit_default_message_type = 'success'
                 st.rerun()
 
         elif isinstance(current_category_content, str):
@@ -415,7 +442,8 @@ def edit_default_notes_page():
             if st.button("Simpan Perubahan Kategori", key="save_category_string_btn"):
                 default_notes[selected_category] = edited_str_value
                 save_json_data(default_notes, DEFAULT_NOTES_FILE)
-                st.success(f"Kategori '{selected_category}' berhasil diperbarui!")
+                st.session_state.edit_default_message = f"Kategori '{selected_category}' berhasil diperbarui!"
+                st.session_state.edit_default_message_type = 'success'
                 st.rerun()
         else:
             st.info("Tipe data tidak didukung untuk pengeditan langsung di sini (bukan daftar, teks, atau kamus).")
@@ -431,10 +459,13 @@ def edit_default_notes_page():
         if confirm:
             del default_notes[category_to_delete]
             save_json_data(default_notes, DEFAULT_NOTES_FILE)
-            st.success(f"Kategori '{category_to_delete}' berhasil dihapus.")
+            st.session_state.edit_default_message = f"Kategori '{category_to_delete}' berhasil dihapus."
+            st.session_state.edit_default_message_type = 'success'
             st.rerun()
         else:
-            st.info("Centang kotak konfirmasi untuk menghapus.")
+            st.session_state.edit_default_message = "Centang kotak konfirmasi untuk menghapus."
+            st.session_state.edit_default_message_type = 'info'
+            st.rerun()
 
 
 # --- Fungsi Utama Aplikasi ---
@@ -445,6 +476,11 @@ def main():
     # Inisialisasi session state untuk kategori yang dipilih jika belum ada
     if 'selected_category_nav' not in st.session_state:
         st.session_state.selected_category_nav = None
+    
+    # Inisialisasi session state untuk pesan default edit jika belum ada
+    if 'edit_default_message' not in st.session_state:
+        st.session_state.edit_default_message = ""
+        st.session_state.edit_default_message_type = ""
 
     if page_selection == "Catatan Default Happy Pet":
         default_notes = load_json_data(DEFAULT_NOTES_FILE)
@@ -472,7 +508,7 @@ def main():
                 st.warning("Judul dan isi catatan tidak boleh kosong.")
 
     elif page_selection == "Lihat Catatan Tersimpan":
-        st.title("📚 Catatan Anda")
+        st.title("📖 Catatan Anda")
         notes = load_json_data(USER_NOTES_FILE)
 
         if "user_notes" in notes and notes["user_notes"]:
