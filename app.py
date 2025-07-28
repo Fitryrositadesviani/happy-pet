@@ -189,7 +189,7 @@ def display_notes_data(notes_data_to_display, selected_category_to_show=None):
             st.markdown(f"<a id='{target_category.replace(' ', '_')}'></a>", unsafe_allow_html=True)
 
             st.markdown(f"<div class='category-card' style='background-color: {bg_color};'>", unsafe_allow_html=True)
-            st.header(f"🌷 {target_category}")
+            st.header(f"📍 {target_category}")
 
             if isinstance(content, dict):
                 display_section_content(content, level=1)
@@ -208,7 +208,7 @@ def display_notes_data(notes_data_to_display, selected_category_to_show=None):
                 if category != target_category:
                     bg_color = CATEGORY_COLORS.get(category, SECONDARY_BACKGROUND_COLOR)
                     st.markdown(f"<div class='category-card' style='background-color: {bg_color};'>", unsafe_allow_html=True)
-                    st.header(f"🌷 {category}")
+                    st.header(f"📍 {category}")
                     if isinstance(content, dict):
                         display_section_content(content, level=1)
                     elif isinstance(content, list):
@@ -226,7 +226,7 @@ def display_notes_data(notes_data_to_display, selected_category_to_show=None):
             st.markdown(f"<a id='{category.replace(' ', '_')}'></a>", unsafe_allow_html=True)
 
             st.markdown(f"<div class='category-card' style='background-color: {bg_color};'>", unsafe_allow_html=True)
-            st.header(f"🌷 {category}")
+            st.header(f"📍 {category}")
 
             if isinstance(content, dict):
                 display_section_content(content, level=1)
@@ -276,17 +276,20 @@ def edit_default_notes_page():
 
     if st.button("Tambah Kategori Baru", key="add_new_default_category_button"):
         if new_category_name:
-            if new_category_type == "Daftar Item":
-                items = [item.strip() for item in (new_category_content or "").split('\n') if item.strip()]
-                default_notes[new_category_name] = items
-            elif new_category_type == "Teks Tunggal":
-                default_notes[new_category_name] = (new_category_content or "").strip()
-            else: # Sub-Kategori (Nested Dictionary)
-                default_notes[new_category_name] = {}
+            if new_category_name in default_notes:
+                st.warning(f"Kategori '{new_category_name}' sudah ada. Silakan pilih nama lain atau edit yang sudah ada.")
+            else:
+                if new_category_type == "Daftar Item":
+                    items = [item.strip() for item in (new_category_content or "").split('\n') if item.strip()]
+                    default_notes[new_category_name] = items
+                elif new_category_type == "Teks Tunggal":
+                    default_notes[new_category_name] = (new_category_content or "").strip()
+                else: # Sub-Kategori (Nested Dictionary)
+                    default_notes[new_category_name] = {}
 
-            save_json_data(default_notes, DEFAULT_NOTES_FILE)
-            st.success(f"Kategori '{new_category_name}' berhasil ditambahkan!")
-            st.rerun() # Diganti dari st.experimental_rerun()
+                save_json_data(default_notes, DEFAULT_NOTES_FILE)
+                st.success(f"Kategori '{new_category_name}' berhasil ditambahkan!")
+                st.rerun()
         else:
             st.warning("Nama kategori tidak boleh kosong.")
 
@@ -326,8 +329,8 @@ def edit_default_notes_page():
                     if st.button("Simpan Perubahan Sub-Kategori", key="save_sub_category_list_btn"):
                         default_notes[selected_category][selected_sub_category] = updated_items
                         save_json_data(default_notes, DEFAULT_NOTES_FILE)
-                        st.success("Sub-kategori berhasil diperbarui!")
-                        st.rerun() # Diganti dari st.experimental_rerun()
+                        st.success(f"Sub-kategori '{selected_sub_category}' berhasil diperbarui!")
+                        st.rerun()
                 elif isinstance(current_sub_content, str):
                     edited_str_value = st.text_input(
                         "Edit nilai:",
@@ -337,8 +340,8 @@ def edit_default_notes_page():
                     if st.button("Simpan Perubahan Sub-Kategori", key="save_sub_category_string_btn"):
                         default_notes[selected_category][selected_sub_category] = edited_str_value
                         save_json_data(default_notes, DEFAULT_NOTES_FILE)
-                        st.success("Sub-kategori berhasil diperbarui!")
-                        st.rerun() # Diganti dari st.experimental_rerun()
+                        st.success(f"Sub-kategori '{selected_sub_category}' berhasil diperbarui!")
+                        st.rerun()
                 elif isinstance(current_sub_content, dict):
                     st.info("Untuk mengedit lebih dalam (nested dictionary), Anda perlu memanipulasi JSON secara manual atau ini akan menjadi sangat kompleks.")
                     json_str = st.text_area("Edit JSON Sub-Kategori:", value=json.dumps(current_sub_content, indent=4, ensure_ascii=False), height=200, key="edit_nested_dict_area")
@@ -347,8 +350,8 @@ def edit_default_notes_page():
                         if st.button("Simpan Perubahan JSON Sub-Kategori", key="save_nested_dict_btn"):
                             default_notes[selected_category][selected_sub_category] = updated_dict
                             save_json_data(default_notes, DEFAULT_NOTES_FILE)
-                            st.success("Sub-kategori berhasil diperbarui dari JSON!")
-                            st.rerun() # Diganti dari st.experimental_rerun()
+                            st.success(f"Sub-kategori '{selected_sub_category}' berhasil diperbarui dari JSON!")
+                            st.rerun()
                     except json.JSONDecodeError:
                         st.error("Format JSON tidak valid.")
 
@@ -360,15 +363,18 @@ def edit_default_notes_page():
 
             if st.button("Tambah Sub-Kategori Baru", key="add_new_sub_category_button"):
                 if new_sub_category_name and selected_category:
-                    if new_sub_category_type == "Daftar Item":
-                        items = [item.strip() for item in (new_sub_category_content_input or "").split('\n') if item.strip()]
-                        default_notes[selected_category][new_sub_category_name] = items
-                    else: # Teks Tunggal
-                        default_notes[selected_category][new_sub_category_name] = (new_sub_category_content_input or "").strip()
+                    if new_sub_category_name in default_notes[selected_category]:
+                        st.warning(f"Sub-kategori '{new_sub_category_name}' sudah ada di '{selected_category}'. Silakan pilih nama lain atau edit yang sudah ada.")
+                    else:
+                        if new_sub_category_type == "Daftar Item":
+                            items = [item.strip() for item in (new_sub_category_content_input or "").split('\n') if item.strip()]
+                            default_notes[selected_category][new_sub_category_name] = items
+                        else: # Teks Tunggal
+                            default_notes[selected_category][new_sub_category_name] = (new_sub_category_content_input or "").strip()
 
-                    save_json_data(default_notes, DEFAULT_NOTES_FILE)
-                    st.success(f"Sub-kategori '{new_sub_category_name}' berhasil ditambahkan ke '{selected_category}'!")
-                    st.rerun() # Diganti dari st.experimental_rerun()
+                        save_json_data(default_notes, DEFAULT_NOTES_FILE)
+                        st.success(f"Sub-kategori '{new_sub_category_name}' berhasil ditambahkan ke '{selected_category}'!")
+                        st.rerun()
                 else:
                     st.warning("Nama sub-kategori dan isi tidak boleh kosong.")
 
@@ -381,7 +387,7 @@ def edit_default_notes_page():
                     del default_notes[selected_category][sub_category_to_delete]
                     save_json_data(default_notes, DEFAULT_NOTES_FILE)
                     st.success(f"Sub-kategori '{sub_category_to_delete}' berhasil dihapus.")
-                    st.rerun() # Diganti dari st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.info("Centang kotak konfirmasi untuk menghapus.")
 
@@ -397,8 +403,8 @@ def edit_default_notes_page():
             if st.button("Simpan Perubahan Kategori", key="save_category_list_btn"):
                 default_notes[selected_category] = updated_items
                 save_json_data(default_notes, DEFAULT_NOTES_FILE)
-                st.success("Catatan default berhasil diperbarui!")
-                st.rerun() # Diganti dari st.experimental_rerun()
+                st.success(f"Kategori '{selected_category}' berhasil diperbarui!")
+                st.rerun()
 
         elif isinstance(current_category_content, str):
             edited_str_value = st.text_input(
@@ -409,8 +415,8 @@ def edit_default_notes_page():
             if st.button("Simpan Perubahan Kategori", key="save_category_string_btn"):
                 default_notes[selected_category] = edited_str_value
                 save_json_data(default_notes, DEFAULT_NOTES_FILE)
-                st.success("Catatan default berhasil diperbarui!")
-                st.rerun() # Diganti dari st.experimental_rerun()
+                st.success(f"Kategori '{selected_category}' berhasil diperbarui!")
+                st.rerun()
         else:
             st.info("Tipe data tidak didukung untuk pengeditan langsung di sini (bukan daftar, teks, atau kamus).")
             st.text_area("Konten JSON mentah (untuk debugging/pengeditan manual):", json.dumps(current_category_content, indent=4, ensure_ascii=False), height=200, disabled=True)
@@ -426,7 +432,7 @@ def edit_default_notes_page():
             del default_notes[category_to_delete]
             save_json_data(default_notes, DEFAULT_NOTES_FILE)
             st.success(f"Kategori '{category_to_delete}' berhasil dihapus.")
-            st.rerun() # Diganti dari st.experimental_rerun()
+            st.rerun()
         else:
             st.info("Centang kotak konfirmasi untuk menghapus.")
 
@@ -466,7 +472,7 @@ def main():
                 st.warning("Judul dan isi catatan tidak boleh kosong.")
 
     elif page_selection == "Lihat Catatan Tersimpan":
-        st.title("📖 Catatan Anda")
+        st.title("📚 Catatan Anda")
         notes = load_json_data(USER_NOTES_FILE)
 
         if "user_notes" in notes and notes["user_notes"]:
@@ -481,7 +487,8 @@ def main():
                     if st.button(f"Hapus '{title}'", key=f"delete_{title}"):
                         del notes["user_notes"][title]
                         save_json_data(notes, USER_NOTES_FILE)
-                        st.rerun() # Diganti dari st.experimental_rerun()
+                        st.success(f"Catatan '{title}' berhasil dihapus!") # Pesan konfirmasi
+                        st.rerun()
 
             st.markdown("---")
             st.subheader("Edit Catatan (Pilih salah satu)")
@@ -505,12 +512,12 @@ def main():
                             del notes["user_notes"][st.session_state.edited_user_title]
                         notes["user_notes"][new_title] = new_content
                         save_json_data(notes, USER_NOTES_FILE)
-                        st.success("Catatan berhasil diperbarui!")
+                        st.success(f"Catatan '{new_title}' berhasil diperbarui!") # Pesan konfirmasi
                         if 'edited_user_title' in st.session_state:
                             del st.session_state.edited_user_title
                         if 'edited_user_content' in st.session_state:
                             del st.session_state.edited_user_content
-                        st.rerun() # Diganti dari st.experimental_rerun()
+                        st.rerun()
                     else:
                         st.warning("Judul dan isi catatan tidak boleh kosong.")
         else:
