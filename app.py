@@ -8,8 +8,6 @@ st.set_page_config(
     page_icon="🐾", # Lambang baru
     layout="wide",
     initial_sidebar_state="expanded",
-    # Tema warna yang lebih ceria
-    # Anda bisa coba warna lain di sini: https://docs.streamlit.io/library/api-reference/utilities/st.set_page_config
     menu_items={
         'Get Help': 'https://www.google.com/search?q=streamlit+documentation',
         'Report a bug': "https://github.com/streamlit/streamlit/issues",
@@ -18,16 +16,36 @@ st.set_page_config(
 )
 
 # Menentukan warna kustom untuk tema yang lebih ceria
-# Warna pastel atau cerah biasanya memberikan kesan ceria
-# Pastikan kontras teks cukup jelas
 PRIMARY_COLOR = "#FFD1DC" # Pink Pastel
 BACKGROUND_COLOR = "#F0F2F6" # Abu-abu sangat terang
 SECONDARY_BACKGROUND_COLOR = "#FFFFFF" # Putih
 TEXT_COLOR = "#333333" # Abu-abu gelap untuk keterbacaan
 FONT = "sans-serif"
 
+# --- Definisi Warna Latar Belakang untuk Setiap Kategori ---
+# Anda bisa menambahkan atau mengubah warna di sini.
+# Gunakan warna pastel atau muted agar tidak terlalu mencolok.
+CATEGORY_COLORS = {
+    "Kategori Hewan": "#FFE0F0",  # Pink sangat terang
+    "Shio Cina": "#E0FFFF",       # Biru Langit sangat terang
+    "Lokasi Geografis & Kehidupan": "#E6F2FF", # Biru muda
+    "Fitur Fisik & Karakteristik": "#FFF2E6", # Orange pucat
+    "Astronomi & Geografi": "#F0E6FF", # Ungu sangat terang
+    "Warna & Ilmu Pengetahuan": "#E6FFEA", # Hijau muda
+    "Waktu & Kalender": "#FFE6E6", # Merah muda
+    "Zodiak & Elemen (Barat)": "#FFFFE0", # Kuning sangat terang
+    "Hari Kebangsaan": "#F5E6FF", # Lavender
+    "Musik": "#E0FFE0", # Mint green
+    "Lain-lain": "#FDFDBD", # Krem
+    "Ikan Bulan Juni": "#BFEFFF", # Sky blue
+    "Ikan Siang & Malam": "#ADD8E6" # Light blue
+    # Tambahkan lebih banyak kategori dan warna di sini
+}
+
+# --- CSS Kustom untuk Styling Aplikasi Secara Keseluruhan dan Kategori ---
 st.markdown(f"""
     <style>
+    /* Styling Global */
     .reportview-container {{
         background: {BACKGROUND_COLOR};
     }}
@@ -51,6 +69,7 @@ st.markdown(f"""
         color: {SECONDARY_BACKGROUND_COLOR};
         border: 1px solid {TEXT_COLOR};
     }}
+
     /* Mengatur ukuran font untuk subkategori */
     h3 {{
         font-size: 1.5em; /* 2 tingkat lebih besar dari default p (1em) */
@@ -58,13 +77,19 @@ st.markdown(f"""
     h4 {{
         font-size: 1.25em; /* 1 tingkat lebih besar dari default p (1em) */
     }}
-    /* Penyesuaian khusus untuk sub-sub-kategori agar tidak terlalu besar */
     .stMarkdown h3 + h4 {{ /* Jika h4 mengikuti h3 */
         font-size: 1.2em; /* Sedikit lebih kecil dari h4 biasa */
     }}
+
+    /* Styling untuk Background Kategori */
+    .category-card {{
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+        box-shadow: 2px 2px 8px rgba(0,0,0,0.1); /* Sedikit bayangan */
+    }}
     </style>
     """, unsafe_allow_html=True)
-
 
 # --- Nama File Data ---
 USER_NOTES_FILE = 'user_notes.json'
@@ -84,49 +109,55 @@ def load_json_data(file_path):
 
 def save_json_data(data, file_path):
     """Menyimpan data ke file JSON."""
-    with os.path.dirname(file_path):
-        pass # Pastikan direktori ada (untuk Streamlit Cloud biasanya sudah ada)
     with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
 
 # --- Fungsi untuk Menampilkan Catatan ---
 def display_section(title, items, level=0):
     """Fungsi pembantu untuk menampilkan bagian dengan bullet points."""
-    # Menggunakan header yang berbeda berdasarkan level untuk kontrol ukuran font
     if level == 0:
-        st.subheader(title) # Default subheader
+        st.subheader(title)
     elif level == 1:
-        st.markdown(f"#### {title}") # Satu tingkat lebih kecil
+        st.markdown(f"#### {title}")
     elif level == 2:
-        st.markdown(f"##### {title}") # Dua tingkat lebih kecil
+        st.markdown(f"##### {title}")
 
     if isinstance(items, list):
         for item in items:
             st.markdown(f"- {item}")
     elif isinstance(items, dict):
         for key, value in items.items():
+            # Tambahan untuk warna latar belakang sub-kategori jika diperlukan
+            # st.markdown(f"<div style='background-color:#F5F5F5; padding: 5px; border-radius: 5px;'>", unsafe_allow_html=True)
             if isinstance(value, (list, dict)):
                 st.markdown(f"- **{key}**:")
-                # Rekursif untuk sub-sub-kategori
                 display_section("", value, level=level + 1)
             else:
                 st.markdown(f"- **{key}**: {value}")
+            # st.markdown(f"</div>", unsafe_allow_html=True)
     else:
-        st.markdown(f"- {items}") # Menggunakan markdown untuk konsistensi
+        st.markdown(f"- {items}")
 
 def display_notes_data(notes_data_to_display):
     """Menampilkan data catatan yang sudah ada dalam format rapi."""
-    st.title("📝 Catatan Happy Pet & Pengetahuan Umum")
+    st.title("📔 Catatan Happy Pet & Pengetahuan Umum")
 
     for category, content in notes_data_to_display.items():
+        # Dapatkan warna untuk kategori ini, jika tidak ada, gunakan warna latar belakang utama
+        bg_color = CATEGORY_COLORS.get(category, SECONDARY_BACKGROUND_COLOR) # Menggunakan warna latar belakang sekunder sebagai default
+
+        # Bungkus setiap kategori dalam div dengan gaya kustom
+        st.markdown(f"<div class='category-card' style='background-color: {bg_color};'>", unsafe_allow_html=True)
         st.header(f"📍 {category}")
         if isinstance(content, dict):
             for sub_category, items in content.items():
-                display_section(f"**{sub_category}**", items, level=1) # Sub-kategori
+                display_section(f"**{sub_category}**", items, level=1)
         elif isinstance(content, list):
-            display_section(f"**{category}**", content, level=0) # Jika kategori langsung list
+            display_section(f"**{category}**", content, level=0)
         else:
-            st.markdown(f"- {content}") # Jika kategori langsung string
+            st.markdown(f"- {content}")
+        st.markdown(f"</div>", unsafe_allow_html=True)
+
 
 # --- Fungsi untuk Mengelola Catatan Default ---
 def edit_default_notes_page():
@@ -144,7 +175,7 @@ def edit_default_notes_page():
     st.subheader("Tambah Kategori Baru")
     new_category_name = st.text_input("Nama Kategori Baru:", key="new_default_category_name")
     new_category_type = st.radio("Tipe Konten Kategori Baru:", ["Teks Tunggal", "Daftar Item", "Sub-Kategori (Nested Dictionary)"], key="new_default_category_type")
-    
+
     new_category_content = None
     if new_category_type == "Daftar Item":
         new_category_content = st.text_area("Isi Daftar Item (satu item per baris):", height=100, key="new_default_category_list_content")
@@ -231,7 +262,7 @@ def edit_default_notes_page():
                             st.experimental_rerun()
                     except json.JSONDecodeError:
                         st.error("Format JSON tidak valid.")
-            
+
             st.markdown("---")
             st.subheader("Tambahkan Sub-Kategori Baru")
             new_sub_category_name = st.text_input("Nama Sub-Kategori Baru:", key="new_sub_category_name")
@@ -245,7 +276,7 @@ def edit_default_notes_page():
                         default_notes[selected_category][new_sub_category_name] = items
                     else: # Teks Tunggal
                         default_notes[selected_category][new_sub_category_name] = (new_sub_category_content_input or "").strip()
-                    
+
                     save_json_data(default_notes, DEFAULT_NOTES_FILE)
                     st.success(f"Sub-kategori '{new_sub_category_name}' berhasil ditambahkan ke '{selected_category}'!")
                     st.experimental_rerun()
@@ -347,7 +378,6 @@ def main():
 
         if "user_notes" in notes and notes["user_notes"]:
             st.write("Berikut adalah catatan yang Anda simpan:")
-            # Tampilan catatan dengan opsi hapus
             for title, content in notes["user_notes"].items():
                 col1, col2 = st.columns([0.7, 0.3])
                 with col1:
@@ -360,7 +390,6 @@ def main():
                         save_json_data(notes, USER_NOTES_FILE)
                         st.experimental_rerun()
 
-            # Bagian untuk mengedit catatan
             st.markdown("---")
             st.subheader("Edit Catatan (Pilih salah satu)")
             selected_note_to_edit = st.selectbox(
@@ -395,7 +424,7 @@ def main():
             st.info("Anda belum memiliki catatan yang disimpan.")
 
     elif page_selection == "Edit Catatan Default":
-        edit_default_notes_page() # Panggil fungsi terpisah untuk halaman edit default
+        edit_default_notes_page()
 
 if __name__ == "__main__":
     main()
