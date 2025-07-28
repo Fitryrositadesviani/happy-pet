@@ -116,10 +116,10 @@ def display_section(title, items, level=0):
 
 def display_notes_data(notes_data_to_display):
     """Menampilkan data catatan yang sudah ada dalam format rapi."""
-    st.title("🗒️ Catatan Happy Pet & Pengetahuan Umum")
+    st.title("📝 Catatan Happy Pet & Pengetahuan Umum")
 
     for category, content in notes_data_to_display.items():
-        st.header(f"✨ {category}")
+        st.header(f"📍 {category}")
         if isinstance(content, dict):
             for sub_category, items in content.items():
                 display_section(f"**{sub_category}**", items, level=1) # Sub-kategori
