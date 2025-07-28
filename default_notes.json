@@ -70,70 +70,70 @@
             "Kutu",
             "Jangkrik"
         ],
-        "Yang Bisa Melompat (Daftar ini sepertinya salah, perlu dikoreksi)": [
+        "Yang Bisa Melompat": [
             "Siput",
             "Kura-kura"
         ]
     },
     "Shio Cina": {
         "Daftar Shio": [
-            "Tikus (Rat)",
-            "Kerbau (Ox)",
-            "Harimau (Tiger)",
-            "Kelinci (Rabbit)",
-            "Naga (Dragon)",
-            "Ular (Snake)",
-            "Kuda (Horse)",
-            "Kambing/Domba (Goat/Sheep)",
-            "Monyet (Monkey)",
-            "Ayam Jago (Rooster)",
-            "Anjing (Dog)",
-            "Babi (Pig)"
+            "Tikus",
+            "Kerbau",
+            "Harimau",
+            "Kelinci",
+            "Naga",
+            "Ular",
+            "Kuda",
+            "Kambing/Domba",
+            "Monyet",
+            "Ayam Jago",
+            "Anjing",
+            "Babi"
         ],
         "Kelompok Elemen": {
             "Kayu": [
-                "Harimau (Tiger)",
-                "Kelinci (Rabbit)"
+                "Harimau",
+                "Kelinci"
             ],
             "Air": [
-                "Tikus (Rat)",
-                "Babi (Pig)"
+                "Tikus",
+                "Babi"
             ],
             "Api": [
-                "Ular (Snake)",
-                "Kuda (Horse)"
+                "Ular",
+                "Kuda"
             ],
             "Logam": [
-                "Monyet (Monkey)",
-                "Ayam Jago (Rooster)"
+                "Monyet",
+                "Ayam Jago"
             ],
             "Tanah": [
-                "Kerbau (Ox)",
-                "Naga (Dragon)",
-                "Kambing/Domba (Goat/Sheep)",
-                "Anjing (Dog)"
+                "Kerbau",
+                "Naga",
+                "Kambing/Domba",
+                "Anjing"
             ]
         },
         "Kelompok Kompatibilitas": {
             "Grup 1": [
-                "Tikus (Rat)",
-                "Naga (Dragon)",
-                "Monyet (Monkey)"
+                "Tikus",
+                "Naga",
+                "Monyet"
             ],
             "Grup 2": [
-                "Kerbau (Ox)",
-                "Ular (Snake)",
-                "Ayam Jago (Rooster)"
+                "Kerbau",
+                "Ular",
+                "Ayam Jago"
             ],
             "Grup 3": [
-                "Harimau (Tiger)",
-                "Kuda (Horse)",
-                "Anjing (Dog)"
+                "Harimau",
+                "Kuda",
+                "Anjing"
             ],
             "Grup 4": [
-                "Kelinci (Rabbit)",
-                "Kambing/Domba (Goat/Sheep)",
-                "Babi (Pig)"
+                "Kelinci",
+                "Kambing/Domba",
+                "Babi"
             ]
         }
     },
