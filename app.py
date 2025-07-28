@@ -93,6 +93,17 @@ st.markdown(f"""
     .stMarkdown ul:first-of-type {{
         margin-top: 0;
     }}
+    /* Gaya untuk link navigasi kategori */
+    .category-nav-link {{
+        text-decoration: none;
+        color: {TEXT_COLOR};
+        padding: 5px 0;
+        display: block;
+        transition: color 0.2s;
+    }}
+    .category-nav-link:hover {{
+        color: {PRIMARY_COLOR};
+    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -142,26 +153,99 @@ def display_section_content(content_dict, level):
         st.markdown("") # Tambahkan baris kosong setelah setiap sub-kategori
 
 
-def display_notes_data(notes_data_to_display):
+def display_notes_data(notes_data_to_display, selected_category_to_show=None):
     """Menampilkan data catatan yang sudah ada dalam format rapi."""
     st.title("📔 Catatan Happy Pet & Pengetahuan Umum")
 
-    for category, content in notes_data_to_display.items():
-        bg_color = CATEGORY_COLORS.get(category, SECONDARY_BACKGROUND_COLOR)
+    # Tampilkan daftar kategori sebagai link navigasi
+    st.subheader("Daftar Kategori:")
+    col_idx = 0
+    cols = st.columns(4) # Misalnya 4 kolom untuk daftar kategori
+    
+    # Simpan state untuk scroll
+    if 'scroll_to_category' not in st.session_state:
+        st.session_state.scroll_to_category = None
 
-        st.markdown(f"<div class='category-card' style='background-color: {bg_color};'>", unsafe_allow_html=True)
-        st.header(f"📍 {category}")
+    # Buat tombol atau link untuk setiap kategori
+    for category_name in notes_data_to_display.keys():
+        with cols[col_idx]:
+            if st.button(category_name, key=f"nav_btn_{category_name}"):
+                st.session_state.selected_category_nav = category_name
+                st.session_state.scroll_to_category = category_name # Set category to scroll to
+                # st.rerun() # Tidak perlu rerun di sini karena main() akan dipanggil lagi dan state sudah diatur
 
-        if isinstance(content, dict):
-            display_section_content(content, level=1) # Panggil fungsi baru untuk konten dikt
-        elif isinstance(content, list):
-            # Jika kategori langsung berisi list, tampilkan sebagai bullet biasa
-            for item in content:
-                st.markdown(f"- {item}")
-        else:
-            # Jika kategori langsung berisi string
-            st.markdown(f"- {content}")
-        st.markdown(f"</div>", unsafe_allow_html=True)
+        col_idx = (col_idx + 1) % 4
+    
+    st.markdown("---") # Garis pemisah
+
+    # Tampilkan kategori yang dipilih jika ada
+    if st.session_state.get('selected_category_nav'):
+        target_category = st.session_state.selected_category_nav
+        if target_category in notes_data_to_display:
+            content = notes_data_to_display[target_category]
+            bg_color = CATEGORY_COLORS.get(target_category, SECONDARY_BACKGROUND_COLOR)
+
+            # Marker untuk scroll
+            st.markdown(f"<a id='{target_category.replace(' ', '_')}'></a>", unsafe_allow_html=True)
+
+            st.markdown(f"<div class='category-card' style='background-color: {bg_color};'>", unsafe_allow_html=True)
+            st.header(f"🌷 {target_category}")
+
+            if isinstance(content, dict):
+                display_section_content(content, level=1)
+            elif isinstance(content, list):
+                for item in content:
+                    st.markdown(f"- {item}")
+            else:
+                st.markdown(f"- {content}")
+            st.markdown(f"</div>", unsafe_allow_html=True)
+
+            st.markdown("---") # Garis pemisah setelah kategori yang dipilih
+            st.subheader("Kategori Lainnya:")
+            
+            # Tampilkan kategori lainnya di bawahnya
+            for category, content in notes_data_to_display.items():
+                if category != target_category:
+                    bg_color = CATEGORY_COLORS.get(category, SECONDARY_BACKGROUND_COLOR)
+                    st.markdown(f"<div class='category-card' style='background-color: {bg_color};'>", unsafe_allow_html=True)
+                    st.header(f"🌷 {category}")
+                    if isinstance(content, dict):
+                        display_section_content(content, level=1)
+                    elif isinstance(content, list):
+                        for item in content:
+                            st.markdown(f"- {item}")
+                    else:
+                        st.markdown(f"- {content}")
+                    st.markdown(f"</div>", unsafe_allow_html=True)
+    else:
+        # Jika tidak ada kategori yang dipilih, tampilkan semua seperti biasa
+        for category, content in notes_data_to_display.items():
+            bg_color = CATEGORY_COLORS.get(category, SECONDARY_BACKGROUND_COLOR)
+
+            # Marker untuk scroll, pastikan ID unik dan valid (tanpa spasi)
+            st.markdown(f"<a id='{category.replace(' ', '_')}'></a>", unsafe_allow_html=True)
+
+            st.markdown(f"<div class='category-card' style='background-color: {bg_color};'>", unsafe_allow_html=True)
+            st.header(f"🌷 {category}")
+
+            if isinstance(content, dict):
+                display_section_content(content, level=1)
+            elif isinstance(content, list):
+                for item in content:
+                    st.markdown(f"- {item}")
+            else:
+                st.markdown(f"- {content}")
+            st.markdown(f"</div>", unsafe_allow_html=True)
+
+    # JavaScript untuk menggulir ke elemen dengan ID tertentu
+    if st.session_state.scroll_to_category:
+        category_id = st.session_state.scroll_to_category.replace(' ', '_')
+        st.markdown(f"""
+            <script>
+                document.getElementById('{category_id}').scrollIntoView({{behavior: 'smooth'}});
+            </script>
+        """, unsafe_allow_html=True)
+        st.session_state.scroll_to_category = None # Reset scroll state
 
 
 # --- Fungsi untuk Mengelola Catatan Default ---
@@ -202,7 +286,7 @@ def edit_default_notes_page():
 
             save_json_data(default_notes, DEFAULT_NOTES_FILE)
             st.success(f"Kategori '{new_category_name}' berhasil ditambahkan!")
-            st.experimental_rerun()
+            st.rerun() # Diganti dari st.experimental_rerun()
         else:
             st.warning("Nama kategori tidak boleh kosong.")
 
@@ -243,7 +327,7 @@ def edit_default_notes_page():
                         default_notes[selected_category][selected_sub_category] = updated_items
                         save_json_data(default_notes, DEFAULT_NOTES_FILE)
                         st.success("Sub-kategori berhasil diperbarui!")
-                        st.experimental_rerun()
+                        st.rerun() # Diganti dari st.experimental_rerun()
                 elif isinstance(current_sub_content, str):
                     edited_str_value = st.text_input(
                         "Edit nilai:",
@@ -254,7 +338,7 @@ def edit_default_notes_page():
                         default_notes[selected_category][selected_sub_category] = edited_str_value
                         save_json_data(default_notes, DEFAULT_NOTES_FILE)
                         st.success("Sub-kategori berhasil diperbarui!")
-                        st.experimental_rerun()
+                        st.rerun() # Diganti dari st.experimental_rerun()
                 elif isinstance(current_sub_content, dict):
                     st.info("Untuk mengedit lebih dalam (nested dictionary), Anda perlu memanipulasi JSON secara manual atau ini akan menjadi sangat kompleks.")
                     json_str = st.text_area("Edit JSON Sub-Kategori:", value=json.dumps(current_sub_content, indent=4, ensure_ascii=False), height=200, key="edit_nested_dict_area")
@@ -264,7 +348,7 @@ def edit_default_notes_page():
                             default_notes[selected_category][selected_sub_category] = updated_dict
                             save_json_data(default_notes, DEFAULT_NOTES_FILE)
                             st.success("Sub-kategori berhasil diperbarui dari JSON!")
-                            st.experimental_rerun()
+                            st.rerun() # Diganti dari st.experimental_rerun()
                     except json.JSONDecodeError:
                         st.error("Format JSON tidak valid.")
 
@@ -284,7 +368,7 @@ def edit_default_notes_page():
 
                     save_json_data(default_notes, DEFAULT_NOTES_FILE)
                     st.success(f"Sub-kategori '{new_sub_category_name}' berhasil ditambahkan ke '{selected_category}'!")
-                    st.experimental_rerun()
+                    st.rerun() # Diganti dari st.experimental_rerun()
                 else:
                     st.warning("Nama sub-kategori dan isi tidak boleh kosong.")
 
@@ -297,7 +381,7 @@ def edit_default_notes_page():
                     del default_notes[selected_category][sub_category_to_delete]
                     save_json_data(default_notes, DEFAULT_NOTES_FILE)
                     st.success(f"Sub-kategori '{sub_category_to_delete}' berhasil dihapus.")
-                    st.experimental_rerun()
+                    st.rerun() # Diganti dari st.experimental_rerun()
                 else:
                     st.info("Centang kotak konfirmasi untuk menghapus.")
 
@@ -314,7 +398,7 @@ def edit_default_notes_page():
                 default_notes[selected_category] = updated_items
                 save_json_data(default_notes, DEFAULT_NOTES_FILE)
                 st.success("Catatan default berhasil diperbarui!")
-                st.experimental_rerun()
+                st.rerun() # Diganti dari st.experimental_rerun()
 
         elif isinstance(current_category_content, str):
             edited_str_value = st.text_input(
@@ -326,7 +410,7 @@ def edit_default_notes_page():
                 default_notes[selected_category] = edited_str_value
                 save_json_data(default_notes, DEFAULT_NOTES_FILE)
                 st.success("Catatan default berhasil diperbarui!")
-                st.experimental_rerun()
+                st.rerun() # Diganti dari st.experimental_rerun()
         else:
             st.info("Tipe data tidak didukung untuk pengeditan langsung di sini (bukan daftar, teks, atau kamus).")
             st.text_area("Konten JSON mentah (untuk debugging/pengeditan manual):", json.dumps(current_category_content, indent=4, ensure_ascii=False), height=200, disabled=True)
@@ -342,7 +426,7 @@ def edit_default_notes_page():
             del default_notes[category_to_delete]
             save_json_data(default_notes, DEFAULT_NOTES_FILE)
             st.success(f"Kategori '{category_to_delete}' berhasil dihapus.")
-            st.experimental_rerun()
+            st.rerun() # Diganti dari st.experimental_rerun()
         else:
             st.info("Centang kotak konfirmasi untuk menghapus.")
 
@@ -351,6 +435,10 @@ def edit_default_notes_page():
 def main():
     st.sidebar.title("Navigasi")
     page_selection = st.sidebar.radio("Pilih Halaman", ["Lihat Catatan Tersimpan", "Tambah Catatan Baru", "Catatan Default Happy Pet", "Edit Catatan Default"])
+
+    # Inisialisasi session state untuk kategori yang dipilih jika belum ada
+    if 'selected_category_nav' not in st.session_state:
+        st.session_state.selected_category_nav = None
 
     if page_selection == "Catatan Default Happy Pet":
         default_notes = load_json_data(DEFAULT_NOTES_FILE)
@@ -378,7 +466,7 @@ def main():
                 st.warning("Judul dan isi catatan tidak boleh kosong.")
 
     elif page_selection == "Lihat Catatan Tersimpan":
-        st.title("📚 Catatan Anda")
+        st.title("📖 Catatan Anda")
         notes = load_json_data(USER_NOTES_FILE)
 
         if "user_notes" in notes and notes["user_notes"]:
@@ -393,7 +481,7 @@ def main():
                     if st.button(f"Hapus '{title}'", key=f"delete_{title}"):
                         del notes["user_notes"][title]
                         save_json_data(notes, USER_NOTES_FILE)
-                        st.experimental_rerun()
+                        st.rerun() # Diganti dari st.experimental_rerun()
 
             st.markdown("---")
             st.subheader("Edit Catatan (Pilih salah satu)")
@@ -422,7 +510,7 @@ def main():
                             del st.session_state.edited_user_title
                         if 'edited_user_content' in st.session_state:
                             del st.session_state.edited_user_content
-                        st.experimental_rerun()
+                        st.rerun() # Diganti dari st.experimental_rerun()
                     else:
                         st.warning("Judul dan isi catatan tidak boleh kosong.")
         else:
