@@ -29,8 +29,7 @@
             "Gorila",
             "Bajing Tanah",
             "Beruang",
-            "Billfish",
-            "Burung Unta"
+            "Billfish"
         ],
         "Anonim (Tidak Dikategorikan)": [
             "Rafflesia"
@@ -56,7 +55,12 @@
             "Kasuari",
             "Takahe",
             "Kiwi",
-            "Rhea"
+            "Rhea",
+            "Burung Unta",
+            "Kakapo"
+        ],
+        "Yang Bisa Terbang": [
+            "Rangkong"
         ],
         "Bernapas Menggunakan Kulit": [
             "Cacing Tanah",
@@ -160,7 +164,9 @@
         "Kuku Terbentuk dari Zat": "Keratin",
         "Zat Pembentuk Kulit dan Rambut": "(Tidak ada item spesifik yang diberikan)",
         "Terumbu Karang Terbesar Sedunia di Laut Coral": "Terumbu Penghalang Besar",
-        "Bertahan Paling Lama Tanpa Air": "Bukan Jerapah"
+        "Bertahan Paling Lama Tanpa Air": "Bukan Jerapah",
+        "Kandungan Air dalam Tubuh Manusia": "70%",
+        "Jumlah Tulang Manusia Dewasa": 206
     },
     "Astronomi & Geografi": {
         "Planet Berputar Searah Jarum Jam": "Venus",
@@ -177,6 +183,7 @@
         "Sinar Biru + Sinar Merah": "Magenta",
         "Sinar Merah + Sinar Hijau": "Bukan Krem",
         "Ametis": "Ungu",
+        "Warna Batu Ruby": "Merah",
         "Yang Bisa Membuat Mutiara Meleleh": [
             "Jus Lemon",
             "Cuka"
@@ -252,7 +259,11 @@
     },
     "Lain-lain": {
         "Yang Tidak Bisa Ditemukan Saat Memancing": "Ranjang Laut",
-        "Yang Tidak Bisa Ditemukan di Rumah Mojo": "Rak Buku",
+        "Yang Tidak Bisa Ditemukan di Rumah Mojo": [
+            "Rak Buku",
+            "Rak",
+            "TV"
+        ],
         "Yang Mudah Rusak": [
             "Anggur",
             "Beras Merah"
