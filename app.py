@@ -87,7 +87,7 @@ st.markdown(f"""
         padding: 15px;
         margin-bottom: 20px;
         border-radius: 10px;
-        box-shadow: 2px 2px 8px rgba(0,0,0,0.1); /* Sedikit bayangan */
+        box_shadow: 2px 2px 8px rgba(0,0,0,0.1); /* Sedikit bayangan */
     }}
     /* Menghilangkan margin atas untuk bullet point pertama setelah judul sub-kategori */
     .stMarkdown ul:first-of-type {{
@@ -158,8 +158,6 @@ def display_notes_data(notes_data_to_display, show_management_features=False):
     Menampilkan data catatan.
     Jika show_management_features True, juga menampilkan form tambah/edit/hapus untuk catatan pengguna.
     """
-    # st.title("📔 Catatan Happy Pet") # Judul ini akan diatur di main()
-
     # Tampilkan daftar kategori sebagai link navigasi
     st.subheader("Daftar Kategori:")
     col_idx = 0
@@ -175,7 +173,6 @@ def display_notes_data(notes_data_to_display, show_management_features=False):
             if st.button(category_name, key=f"nav_btn_{category_name}"):
                 st.session_state.selected_category_nav = category_name
                 st.session_state.scroll_to_category = category_name # Set category to scroll to
-                # st.rerun() # Tidak perlu rerun di sini karena main() akan dipanggil lagi dan state sudah diatur
 
         col_idx = (col_idx + 1) % 4
     
@@ -254,7 +251,7 @@ def display_notes_data(notes_data_to_display, show_management_features=False):
     # --- Bagian Manajemen Catatan Pengguna (Jika diaktifkan) ---
     if show_management_features:
         st.markdown("---")
-        st.title("⚙️ Kelola Catatan Anda") # Judul untuk bagian manajemen
+        st.header("⚙️ Kelola Catatan Anda") # Judul untuk bagian manajemen
 
         # Menampilkan pesan konfirmasi yang disimpan di session_state
         if 'user_notes_message' in st.session_state and st.session_state.user_notes_message:
@@ -380,7 +377,6 @@ def display_notes_data(notes_data_to_display, show_management_features=False):
                                 st.rerun()
                         except json.JSONDecodeError:
                             st.error("Format JSON tidak valid.")
-                            # st.rerun() # Tidak perlu rerun karena pesan error akan muncul
 
                 st.markdown("---")
                 st.subheader("Tambahkan Sub-Kategori Baru Anda")
@@ -607,7 +603,6 @@ def edit_default_notes_page():
                             st.rerun()
                     except json.JSONDecodeError:
                         st.error("Format JSON tidak valid.")
-                        # st.rerun() # Tidak perlu rerun jika hanya menampilkan pesan error JSON
 
             st.markdown("---")
             st.subheader("Tambahkan Sub-Kategori Baru")
@@ -708,8 +703,6 @@ def edit_default_notes_page():
 
 # --- Fungsi Utama Aplikasi ---
 def main():
-    st.title("🐾 Selamat Datang di Catatan Happy Pet! 🐾")
-
     st.sidebar.title("Navigasi")
     # Inisialisasi session state untuk halaman
     if 'current_page' not in st.session_state:
@@ -733,9 +726,11 @@ def main():
     st.session_state.current_page = page_options[page_selection_label]
 
     if st.session_state.current_page == "default_notes":
+        st.title("📔 Catatan Default Happy Pet")
         default_notes_data = load_json_data(DEFAULT_NOTES_FILE)
         display_notes_data(default_notes_data)
     elif st.session_state.current_page == "user_notes":
+        st.title("🍯 Catatan Anda")
         user_notes_data = load_json_data(USER_NOTES_FILE)
         if "user_notes" not in user_notes_data:
             user_notes_data["user_notes"] = {}
@@ -743,6 +738,7 @@ def main():
         # Menampilkan catatan pengguna DAN fitur manajemen
         display_notes_data(user_notes_data["user_notes"], show_management_features=True)
     elif st.session_state.current_page == "edit_default_notes":
+        st.title("⚙️ Edit Catatan Utama") # Judul untuk halaman admin
         edit_default_notes_page()
 
 if __name__ == "__main__":
