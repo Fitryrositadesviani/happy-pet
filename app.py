@@ -4,7 +4,7 @@ import os
 
 # --- Konfigurasi Aplikasi (Lambang, Judul, Tema) ---
 st.set_page_config(
-    page_title="Catatan Ceria Happy Pet",
+    page_title="Catatan Happy Pet",
     page_icon="🐾", # Lambang baru
     layout="wide",
     initial_sidebar_state="expanded",
@@ -31,7 +31,7 @@ CATEGORY_COLORS = {
     "Astronomi & Geografi": "#F0E6FF",
     "Warna & Ilmu Pengetahuan": "#E6FFEA",
     "Waktu & Kalender": "#FFE6E6",
-    "Zodiak & Elemen (Barat)": "#FFFFE0",
+    "Zodiak & Elemen": "#FFFFE0",
     "Hari Kebangsaan": "#F5E6FF",
     "Musik": "#E0FFE0",
     "Lain-lain": "#FDFDBD",
@@ -155,7 +155,7 @@ def display_section_content(content_dict, level):
 
 def display_notes_data(notes_data_to_display, selected_category_to_show=None):
     """Menampilkan data catatan yang sudah ada dalam format rapi."""
-    st.title("📔 Catatan Happy Pet & Pengetahuan Umum")
+    st.title("📔 Catatan Happy Pet")
 
     # Tampilkan daftar kategori sebagai link navigasi
     st.subheader("Daftar Kategori:")
@@ -250,8 +250,8 @@ def display_notes_data(notes_data_to_display, selected_category_to_show=None):
 
 # --- Fungsi untuk Mengelola Catatan Default ---
 def edit_default_notes_page():
-    st.title("⚙️ Edit Catatan Default Happy Pet")
-    st.warning("Halaman ini ditujukan untuk mengedit catatan default. Perubahan di sini akan mempengaruhi semua pengguna.")
+    st.title("⚙️ Edit Catatan Utama")
+    st.warning("Halaman ini ditujukan untuk mengedit catatan utama. Perubahan di sini akan mempengaruhi semua pengguna.")
 
     # Menampilkan pesan konfirmasi yang disimpan di session_state
     if 'edit_default_message' in st.session_state and st.session_state.edit_default_message:
@@ -267,7 +267,7 @@ def edit_default_notes_page():
     default_notes = load_json_data(DEFAULT_NOTES_FILE)
 
     if not default_notes:
-        st.error("Tidak dapat memuat catatan default untuk diedit. Pastikan file 'default_notes.json' ada dan formatnya benar.")
+        st.error("Tidak dapat memuat catatan utama untuk diedit. Pastikan file 'default_notes.json' ada dan formatnya benar.")
         return
 
     # --- Tambah Kategori Baru ---
@@ -452,7 +452,7 @@ def edit_default_notes_page():
 
     # --- Hapus Kategori dari Catatan Default ---
     st.markdown("---")
-    st.subheader("Hapus Kategori dari Catatan Default")
+    st.subheader("Hapus Kategori dari Catatan utama")
     category_to_delete = st.selectbox("Pilih Kategori yang akan dihapus:", [""] + categories, key="delete_default_main_category_select")
     if category_to_delete and st.button(f"Hapus Kategori '{category_to_delete}'", key="delete_default_main_category_button"):
         confirm = st.checkbox(f"Saya yakin ingin menghapus kategori '{category_to_delete}'", key="confirm_delete_default_main_category")
@@ -470,8 +470,8 @@ def edit_default_notes_page():
 
 # --- Fungsi Utama Aplikasi ---
 def main():
-    st.sidebar.title("Navigasi")
-    page_selection = st.sidebar.radio("Pilih Halaman", ["Lihat Catatan Tersimpan", "Tambah Catatan Baru", "Catatan Default Happy Pet", "Edit Catatan Default"])
+    st.sidebar.title("Navigasi Utama")
+    page_selection = st.sidebar.radio("Pilih Halaman", ["Catatan Utama Happy Pet", "Arsip", "Edit Catatan Utama", "Tambah Catatan"])
 
     # Inisialisasi session state untuk kategori yang dipilih jika belum ada
     if 'selected_category_nav' not in st.session_state:
@@ -488,12 +488,12 @@ def main():
         st.session_state.user_notes_message_type = ""
 
 
-    if page_selection == "Catatan Default Happy Pet":
+    if page_selection == "Catatan Utama":
         default_notes = load_json_data(DEFAULT_NOTES_FILE)
         if default_notes:
             display_notes_data(default_notes)
         else:
-            st.info("Tidak ada catatan default yang ditemukan atau ada kesalahan saat memuat.")
+            st.info("Tidak ada catatan utama yang ditemukan atau ada kesalahan saat memuat.")
 
     elif page_selection == "Tambah Catatan Baru":
         st.title("➕ Tambah Catatan Baru")
@@ -568,7 +568,7 @@ def main():
                 st.rerun()
 
 
-    elif page_selection == "Lihat Catatan Tersimpan":
+    elif page_selection == "Arsip":
         st.title("🦋 Catatan Anda")
         notes = load_json_data(USER_NOTES_FILE)
 
@@ -756,7 +756,7 @@ def main():
         else:
             st.info("Anda belum memiliki catatan yang disimpan.")
 
-    elif page_selection == "Edit Catatan Default":
+    elif page_selection == "Edit Catatan Utama":
         edit_default_notes_page()
 
 if __name__ == "__main__":
