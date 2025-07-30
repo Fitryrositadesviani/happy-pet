@@ -87,7 +87,7 @@ st.markdown(f"""
         padding: 15px;
         margin-bottom: 20px;
         border-radius: 10px;
-        box_shadow: 2px 2px 8px rgba(0,0,0,0.1); /* Sedikit bayangan */
+        box-shadow: 2px 2px 8px rgba(0,0,0,0.1); /* Sedikit bayangan */
     }}
     /* Menghilangkan margin atas untuk bullet point pertama setelah judul sub-kategori */
     .stMarkdown ul:first-of-type {{
@@ -153,11 +153,10 @@ def display_section_content(content_dict, level):
         st.markdown("") # Tambahkan baris kosong setelah setiap sub-kategori
 
 
-def display_notes_data(notes_data_to_display, show_management_features=False):
-    """
-    Menampilkan data catatan.
-    Jika show_management_features True, juga menampilkan form tambah/edit/hapus untuk catatan pengguna.
-    """
+def display_notes_data(notes_data_to_display, selected_category_to_show=None):
+    """Menampilkan data catatan yang sudah ada dalam format rapi."""
+    # st.title("📔 Catatan Happy Pet") # Judul ini akan diatur di main()
+
     # Tampilkan daftar kategori sebagai link navigasi
     st.subheader("Daftar Kategori:")
     col_idx = 0
@@ -173,6 +172,7 @@ def display_notes_data(notes_data_to_display, show_management_features=False):
             if st.button(category_name, key=f"nav_btn_{category_name}"):
                 st.session_state.selected_category_nav = category_name
                 st.session_state.scroll_to_category = category_name # Set category to scroll to
+                # st.rerun() # Tidak perlu rerun di sini karena main() akan dipanggil lagi dan state sudah diatur
 
         col_idx = (col_idx + 1) % 4
     
@@ -248,237 +248,6 @@ def display_notes_data(notes_data_to_display, show_management_features=False):
         st.session_state.scroll_to_category = None # Reset scroll state
 
 
-    # --- Bagian Manajemen Catatan Pengguna (Jika diaktifkan) ---
-    if show_management_features:
-        st.markdown("---")
-        st.header("⚙️ Kelola Catatan Anda") # Judul untuk bagian manajemen
-
-        # Menampilkan pesan konfirmasi yang disimpan di session_state
-        if 'user_notes_message' in st.session_state and st.session_state.user_notes_message:
-            if st.session_state.user_notes_message_type == 'success':
-                st.success(st.session_state.user_notes_message)
-            elif st.session_state.user_notes_message_type == 'warning':
-                st.warning(st.session_state.user_notes_message)
-            elif st.session_state.user_notes_message_type == 'info':
-                st.info(st.session_state.user_notes_message)
-            st.session_state.user_notes_message = "" # Reset pesan setelah ditampilkan
-            st.session_state.user_notes_message_type = ""
-
-        user_notes_full_data = load_json_data(USER_NOTES_FILE)
-        # Pastikan struktur "user_notes" ada
-        if "user_notes" not in user_notes_full_data:
-            user_notes_full_data["user_notes"] = {}
-            save_json_data(user_notes_full_data, USER_NOTES_FILE)
-        
-        user_notes_data = user_notes_full_data["user_notes"]
-
-        # --- Tambah Kategori Baru ---
-        st.subheader("Tambah Kategori Baru Anda")
-        new_category_name = st.text_input("Nama Kategori Baru:", key="new_user_category_name")
-        new_category_type = st.radio("Tipe Konten Kategori Baru:", ["Teks Tunggal", "Daftar Item", "Sub-Kategori (Nested Dictionary)"], key="new_user_category_type")
-
-        new_category_content = None
-        if new_category_type == "Daftar Item":
-            new_category_content = st.text_area("Isi Daftar Item (satu item per baris):", height=100, key="new_user_category_list_content")
-        elif new_category_type == "Teks Tunggal":
-            new_category_content = st.text_input("Isi Teks Tunggal:", key="new_user_category_text_content")
-        else: # Sub-Kategori (Nested Dictionary)
-            st.info("Untuk menambah sub-kategori, masukkan nama kategori kosong dan kemudian edit di bagian 'Edit Catatan Anda yang Ada'.")
-            new_category_content = {} # Inisialisasi sebagai dictionary kosong
-
-        if st.button("Tambah Kategori Baru Anda", key="add_new_user_category_button"):
-            if new_category_name:
-                if new_category_name in user_notes_data:
-                    st.session_state.user_notes_message = f"Kategori '{new_category_name}' sudah ada. Silakan pilih nama lain atau edit yang sudah ada."
-                    st.session_state.user_notes_message_type = 'warning'
-                else:
-                    if new_category_type == "Daftar Item":
-                        items = [item.strip() for item in (new_category_content or "").split('\n') if item.strip()]
-                        user_notes_data[new_category_name] = items
-                    elif new_category_type == "Teks Tunggal":
-                        user_notes_data[new_category_name] = (new_category_content or "").strip()
-                    else: # Sub-Kategori (Nested Dictionary)
-                        user_notes_data[new_category_name] = {}
-
-                    user_notes_full_data["user_notes"] = user_notes_data # Update full data structure
-                    save_json_data(user_notes_full_data, USER_NOTES_FILE)
-                    st.session_state.user_notes_message = f"Kategori '{new_category_name}' berhasil ditambahkan!"
-                    st.session_state.user_notes_message_type = 'success'
-                st.rerun()
-            else:
-                st.session_state.user_notes_message = "Nama kategori tidak boleh kosong."
-                st.session_state.user_notes_message_type = 'warning'
-                st.rerun()
-
-        # --- Edit Konten yang Ada ---
-        st.markdown("---")
-        st.subheader("Edit Catatan Anda yang Ada")
-        categories_to_edit = list(user_notes_data.keys())
-        selected_category_to_edit = st.selectbox("Pilih Kategori untuk diedit:", [""] + categories_to_edit, key="edit_user_category_select_combined")
-
-        if selected_category_to_edit:
-            current_content = user_notes_data[selected_category_to_edit]
-
-            st.markdown(f"**Mengedit Kategori: {selected_category_to_edit}**")
-
-            if isinstance(current_content, dict):
-                # Editor untuk sub-kategori
-                st.subheader("Edit Sub-Kategori Anda:")
-                sub_categories = list(current_content.keys())
-                selected_sub_category = st.selectbox(
-                    "Pilih Sub-Kategori untuk diedit:",
-                    [""] + sub_categories,
-                    key=f"edit_user_sub_category_select_combined_{selected_category_to_edit}"
-                )
-
-                if selected_sub_category:
-                    current_sub_content = current_content[selected_sub_category]
-                    st.markdown(f"**Mengedit: {selected_category_to_edit} > {selected_sub_category}**")
-
-                    if isinstance(current_sub_content, list):
-                        edited_list_str = st.text_area(
-                            "Edit daftar item (satu item per baris):",
-                            value="\n".join(current_sub_content),
-                            height=150,
-                            key=f"edit_user_sub_list_area_combined_{selected_category_to_edit}_{selected_sub_category}"
-                        )
-                        updated_items = [item.strip() for item in edited_list_str.split('\n') if item.strip()]
-                        if st.button("Simpan Perubahan Sub-Kategori Anda", key=f"save_user_sub_category_list_btn_combined_{selected_category_to_edit}_{selected_sub_category}"):
-                            user_notes_data[selected_category_to_edit][selected_sub_category] = updated_items
-                            user_notes_full_data["user_notes"] = user_notes_data
-                            save_json_data(user_notes_full_data, USER_NOTES_FILE)
-                            st.session_state.user_notes_message = f"Sub-kategori '{selected_sub_category}' berhasil diperbarui!"
-                            st.session_state.user_notes_message_type = 'success'
-                            st.rerun()
-                    elif isinstance(current_sub_content, str):
-                        edited_str_value = st.text_input(
-                            "Edit nilai:",
-                            value=current_sub_content,
-                            key=f"edit_user_sub_string_input_combined_{selected_category_to_edit}_{selected_sub_category}"
-                        )
-                        if st.button("Simpan Perubahan Sub-Kategori Anda", key=f"save_user_sub_category_string_btn_combined_{selected_category_to_edit}_{selected_sub_category}"):
-                            user_notes_data[selected_category_to_edit][selected_sub_category] = edited_str_value
-                            user_notes_full_data["user_notes"] = user_notes_data
-                            save_json_data(user_notes_full_data, USER_NOTES_FILE)
-                            st.session_state.user_notes_message = f"Sub-kategori '{selected_sub_category}' berhasil diperbarui!"
-                            st.session_state.user_notes_message_type = 'success'
-                            st.rerun()
-                    elif isinstance(current_sub_content, dict):
-                        st.info("Untuk mengedit lebih dalam (nested dictionary), Anda perlu memanipulasi JSON secara manual atau ini akan menjadi sangat kompleks.")
-                        json_str = st.text_area("Edit JSON Sub-Kategori:", value=json.dumps(current_sub_content, indent=4, ensure_ascii=False), height=200, key=f"edit_user_nested_dict_area_combined_{selected_category_to_edit}_{selected_sub_category}")
-                        try:
-                            updated_dict = json.loads(json_str)
-                            if st.button("Simpan Perubahan JSON Sub-Kategori Anda", key=f"save_user_nested_dict_btn_combined_{selected_category_to_edit}_{selected_sub_category}"):
-                                user_notes_data[selected_category_to_edit][selected_sub_category] = updated_dict
-                                user_notes_full_data["user_notes"] = user_notes_data
-                                save_json_data(user_notes_full_data, USER_NOTES_FILE)
-                                st.session_state.user_notes_message = f"Sub-kategori '{selected_sub_category}' berhasil diperbarui dari JSON!"
-                                st.session_state.user_notes_message_type = 'success'
-                                st.rerun()
-                        except json.JSONDecodeError:
-                            st.error("Format JSON tidak valid.")
-
-                st.markdown("---")
-                st.subheader("Tambahkan Sub-Kategori Baru Anda")
-                new_sub_category_name_add = st.text_input("Nama Sub-Kategori Baru:", key=f"new_user_sub_category_name_add_{selected_category_to_edit}")
-                new_sub_category_type_add = st.radio("Tipe Konten Sub-Kategori Baru:", ["Teks Tunggal", "Daftar Item"], key=f"new_user_sub_category_type_add_{selected_category_to_edit}")
-                new_sub_category_content_input_add = st.text_area("Isi Sub-Kategori Baru (pisahkan dengan baris baru jika daftar):", height=100, key=f"new_user_sub_category_content_input_add_{selected_category_to_edit}")
-
-                if st.button("Tambah Sub-Kategori Baru Anda", key=f"add_new_user_sub_category_button_combined_{selected_category_to_edit}"):
-                    if new_sub_category_name_add and selected_category_to_edit:
-                        if new_sub_category_name_add in user_notes_data[selected_category_to_edit]:
-                            st.session_state.user_notes_message = f"Sub-kategori '{new_sub_category_name_add}' sudah ada di '{selected_category_to_edit}'. Silakan pilih nama lain atau edit yang sudah ada."
-                            st.session_state.user_notes_message_type = 'warning'
-                        else:
-                            if new_sub_category_type_add == "Daftar Item":
-                                items = [item.strip() for item in (new_sub_category_content_input_add or "").split('\n') if item.strip()]
-                                user_notes_data[selected_category_to_edit][new_sub_category_name_add] = items
-                            else: # Teks Tunggal
-                                user_notes_data[selected_category_to_edit][new_sub_category_name_add] = (new_sub_category_content_input_add or "").strip()
-
-                            user_notes_full_data["user_notes"] = user_notes_data
-                            save_json_data(user_notes_full_data, USER_NOTES_FILE)
-                            st.session_state.user_notes_message = f"Sub-kategori '{new_sub_category_name_add}' berhasil ditambahkan ke '{selected_category_to_edit}'!"
-                            st.session_state.user_notes_message_type = 'success'
-                        st.rerun()
-                    else:
-                        st.session_state.user_notes_message = "Nama sub-kategori dan isi tidak boleh kosong."
-                        st.session_state.user_notes_message_type = 'warning'
-                        st.rerun()
-
-                st.markdown("---")
-                st.subheader("Hapus Sub-Kategori Anda")
-                sub_category_to_delete_from_selected = st.selectbox("Pilih Sub-Kategori yang akan dihapus:", [""] + sub_categories, key=f"delete_user_sub_category_select_combined_{selected_category_to_edit}")
-                
-                if sub_category_to_delete_from_selected:
-                    confirm_sub_delete = st.checkbox(f"Saya yakin ingin menghapus sub-kategori '{sub_category_to_delete_from_selected}' Anda", key=f"confirm_delete_user_sub_category_combined_{selected_category_to_edit}")
-                    if st.button(f"Hapus Sub-Kategori '{sub_category_to_delete_from_selected}' Anda", key=f"delete_user_sub_category_button_combined_{selected_category_to_edit}"):
-                        if confirm_sub_delete:
-                            del user_notes_data[selected_category_to_edit][sub_category_to_delete_from_selected]
-                            user_notes_full_data["user_notes"] = user_notes_data
-                            save_json_data(user_notes_full_data, USER_NOTES_FILE)
-                            st.session_state.user_notes_message = f"Sub-kategori '{sub_category_to_delete_from_selected}' Anda berhasil dihapus."
-                            st.session_state.user_notes_message_type = 'success'
-                            st.rerun()
-                        else:
-                            st.session_state.user_notes_message = "Centang kotak konfirmasi untuk menghapus."
-                            st.session_state.user_notes_message_type = 'info'
-
-
-            elif isinstance(current_content, list):
-                edited_list_str = st.text_area(
-                    "Edit daftar item (satu item per baris):",
-                    value="\n".join(current_content),
-                    height=250,
-                    key=f"edit_user_category_list_area_combined_{selected_category_to_edit}"
-                )
-                updated_items = [item.strip() for item in edited_list_str.split('\n') if item.strip()]
-                if st.button("Simpan Perubahan Kategori Anda", key=f"save_user_category_list_btn_combined_{selected_category_to_edit}"):
-                    user_notes_data[selected_category_to_edit] = updated_items
-                    user_notes_full_data["user_notes"] = user_notes_data
-                    save_json_data(user_notes_full_data, USER_NOTES_FILE)
-                    st.session_state.user_notes_message = f"Kategori '{selected_category_to_edit}' berhasil diperbarui!"
-                    st.session_state.user_notes_message_type = 'success'
-                    st.rerun()
-
-            elif isinstance(current_content, str):
-                edited_str_value = st.text_input(
-                    "Edit nilai:",
-                    value=current_content,
-                    key=f"edit_user_category_string_input_combined_{selected_category_to_edit}"
-                )
-                if st.button("Simpan Perubahan Kategori Anda", key=f"save_user_category_string_btn_combined_{selected_category_to_edit}"):
-                    user_notes_data[selected_category_to_edit] = edited_str_value
-                    user_notes_full_data["user_notes"] = user_notes_data
-                    save_json_data(user_notes_full_data, USER_NOTES_FILE)
-                    st.session_state.user_notes_message = f"Kategori '{selected_category_to_edit}' berhasil diperbarui!"
-                    st.session_state.user_notes_message_type = 'success'
-                    st.rerun()
-            else:
-                st.info("Tipe data tidak didukung untuk pengeditan langsung di sini (bukan daftar, teks, atau kamus).")
-                st.text_area("Konten JSON mentah (untuk debugging/pengeditan manual):", json.dumps(current_content, indent=4, ensure_ascii=False), height=200, disabled=True)
-
-        # --- Hapus Kategori dari Catatan Pengguna ---
-        st.markdown("---")
-        st.subheader("Hapus Kategori dari Catatan Tersimpan Anda")
-        categories_to_delete_user = list(user_notes_data.keys()) 
-        category_to_delete_user = st.selectbox("Pilih Kategori yang akan dihapus:", [""] + categories_to_delete_user, key="delete_user_main_category_select_combined")
-        
-        if category_to_delete_user:
-            confirm_user = st.checkbox(f"Saya yakin ingin menghapus kategori '{category_to_delete_user}' Anda", key="confirm_delete_user_main_category_combined")
-            if st.button(f"Hapus Kategori '{category_to_delete_user}' Anda", key="delete_user_main_category_button_combined"):
-                if confirm_user:
-                    del user_notes_data[category_to_delete_user]
-                    user_notes_full_data["user_notes"] = user_notes_data
-                    save_json_data(user_notes_full_data, USER_NOTES_FILE)
-                    st.session_state.user_notes_message = f"Kategori '{category_to_delete_user}' berhasil dihapus."
-                    st.session_state.user_notes_message_type = 'success'
-                    st.rerun()
-                else:
-                    st.session_state.user_notes_message = "Centang kotak konfirmasi untuk menghapus."
-                    st.session_state.user_notes_message_type = 'info'
-
-
 # --- Fungsi untuk Mengelola Catatan Default (Admin Page) ---
 def edit_default_notes_page():
     st.title("⚙️ Edit Catatan Utama (Admin)")
@@ -537,7 +306,7 @@ def edit_default_notes_page():
         else:
             st.session_state.edit_default_message = "Nama kategori tidak boleh kosong."
             st.session_state.edit_default_message_type = 'warning'
-            st.rerun()
+            st.rerun() # Rerun juga untuk menampilkan warning
 
     # --- Edit Konten yang Ada ---
     st.markdown("---")
@@ -603,6 +372,7 @@ def edit_default_notes_page():
                             st.rerun()
                     except json.JSONDecodeError:
                         st.error("Format JSON tidak valid.")
+                        st.rerun() # Rerun untuk menampilkan pesan error JSON
 
             st.markdown("---")
             st.subheader("Tambahkan Sub-Kategori Baru")
@@ -629,13 +399,14 @@ def edit_default_notes_page():
                 else:
                     st.session_state.edit_default_message = "Nama sub-kategori dan isi tidak boleh kosong."
                     st.session_state.edit_default_message_type = 'warning'
-                    st.rerun()
+                    st.rerun() # Rerun untuk menampilkan warning
 
             st.markdown("---")
             st.subheader("Hapus Sub-Kategori")
-            sub_category_to_delete = st.selectbox("Pilih Sub-Kategori yang akan dihapus:", [""] + sub_categories, key="delete_default_sub_category_select")
+            sub_categories_to_delete = list(current_category_content.keys()) # Perbaiki ini, harusnya dari current_category_content
+            sub_category_to_delete = st.selectbox("Pilih Sub-Kategori yang akan dihapus:", [""] + sub_categories_to_delete, key="delete_default_sub_category_select")
             
-            if sub_category_to_delete:
+            if sub_category_to_delete: # Pindahkan if ini ke sini
                 confirm_sub = st.checkbox(f"Saya yakin ingin menghapus sub-kategori '{sub_category_to_delete}'", key="confirm_delete_default_sub_category")
                 if st.button(f"Hapus Sub-Kategori '{sub_category_to_delete}'", key="delete_default_sub_category_button"):
                     if confirm_sub:
@@ -647,6 +418,7 @@ def edit_default_notes_page():
                     else:
                         st.session_state.edit_default_message = "Centang kotak konfirmasi untuk menghapus."
                         st.session_state.edit_default_message_type = 'info'
+                        st.rerun() # Rerun untuk menampilkan info
 
 
         elif isinstance(current_category_content, list):
@@ -687,7 +459,7 @@ def edit_default_notes_page():
     categories_to_delete_default = list(default_notes.keys())
     category_to_delete = st.selectbox("Pilih Kategori yang akan dihapus:", [""] + categories_to_delete_default, key="delete_default_main_category_select")
     
-    if category_to_delete:
+    if category_to_delete: # Pindahkan if ini ke sini
         confirm = st.checkbox(f"Saya yakin ingin menghapus kategori '{category_to_delete}'", key="confirm_delete_default_main_category")
         if st.button(f"Hapus Kategori '{category_to_delete}'", key="delete_default_main_category_button"):
             if confirm:
@@ -699,6 +471,169 @@ def edit_default_notes_page():
             else:
                 st.session_state.edit_default_message = "Centang kotak konfirmasi untuk menghapus."
                 st.session_state.edit_default_message_type = 'info'
+                st.rerun()
+
+
+# --- Fungsi untuk Mengelola Catatan Pengguna ---
+def edit_user_notes_content(notes_data, selected_category):
+    """Fungsi pembantu untuk mengedit konten catatan pengguna."""
+    if selected_category and selected_category in notes_data["user_notes"]:
+        current_content = notes_data["user_notes"][selected_category]
+
+        st.markdown(f"**Mengedit Kategori: {selected_category}**")
+
+        if isinstance(current_content, dict):
+            # Editor untuk sub-kategori
+            st.subheader("Edit Sub-Kategori Anda:")
+            sub_categories = list(current_content.keys())
+            selected_sub_category = st.selectbox(
+                "Pilih Sub-Kategori untuk diedit:",
+                [""] + sub_categories,
+                key=f"edit_user_sub_category_select_{selected_category}"
+            )
+
+            if selected_sub_category:
+                current_sub_content = current_content[selected_sub_category]
+                st.markdown(f"**Mengedit: {selected_category} > {selected_sub_category}**")
+
+                if isinstance(current_sub_content, list):
+                    edited_list_str = st.text_area(
+                        "Edit daftar item (satu item per baris):",
+                        value="\n".join(current_sub_content),
+                        height=150,
+                        key=f"edit_user_sub_list_area_{selected_category}_{selected_sub_category}"
+                    )
+                    updated_items = [item.strip() for item in edited_list_str.split('\n') if item.strip()]
+                    if st.button("Simpan Perubahan Sub-Kategori Anda", key=f"save_user_sub_category_list_btn_{selected_category}_{selected_sub_category}"):
+                        notes_data["user_notes"][selected_category][selected_sub_category] = updated_items
+                        save_json_data(notes_data, USER_NOTES_FILE)
+                        st.session_state.user_notes_message = f"Sub-kategori '{selected_sub_category}' berhasil diperbarui!"
+                        st.session_state.user_notes_message_type = 'success'
+                        st.rerun()
+                elif isinstance(current_sub_content, str):
+                    edited_str_value = st.text_input(
+                        "Edit nilai:",
+                        value=current_sub_content,
+                        key=f"edit_user_sub_string_input_{selected_category}_{selected_sub_category}"
+                    )
+                    if st.button("Simpan Perubahan Sub-Kategori Anda", key=f"save_user_sub_category_string_btn_{selected_category}_{selected_sub_category}"):
+                        notes_data["user_notes"][selected_category][selected_sub_category] = edited_str_value
+                        save_json_data(notes_data, USER_NOTES_FILE)
+                        st.session_state.user_notes_message = f"Sub-kategori '{selected_sub_category}' berhasil diperbarui!"
+                        st.session_state.user_notes_message_type = 'success'
+                        st.rerun()
+                elif isinstance(current_sub_content, dict):
+                    st.info("Untuk mengedit lebih dalam (nested dictionary), Anda perlu memanipulasi JSON secara manual atau ini akan menjadi sangat kompleks.")
+                    json_str = st.text_area("Edit JSON Sub-Kategori:", value=json.dumps(current_sub_content, indent=4, ensure_ascii=False), height=200, key=f"edit_user_nested_dict_area_{selected_category}_{selected_sub_category}")
+                    try:
+                        updated_dict = json.loads(json_str)
+                        if st.button("Simpan Perubahan JSON Sub-Kategori Anda", key=f"save_user_nested_dict_btn_{selected_category}_{selected_sub_category}"):
+                            notes_data["user_notes"][selected_category][selected_sub_category] = updated_dict
+                            save_json_data(notes_data, USER_NOTES_FILE)
+                            st.session_state.user_notes_message = f"Sub-kategori '{selected_sub_category}' berhasil diperbarui dari JSON!"
+                            st.session_state.user_notes_message_type = 'success'
+                            st.rerun()
+                    except json.JSONDecodeError:
+                        st.error("Format JSON tidak valid.")
+                        st.rerun()
+
+            st.markdown("---")
+            st.subheader("Tambahkan Sub-Kategori Baru Anda")
+            new_sub_category_name = st.text_input("Nama Sub-Kategori Baru:", key=f"new_user_sub_category_name_{selected_category}")
+            new_sub_category_type = st.radio("Tipe Konten Sub-Kategori Baru:", ["Teks Tunggal", "Daftar Item"], key=f"new_user_sub_category_type_{selected_category}")
+            new_sub_category_content_input = st.text_area("Isi Sub-Kategori Baru (pisahkan dengan baris baru jika daftar):", height=100, key=f"new_user_sub_category_content_input_{selected_category}")
+
+            if st.button("Tambah Sub-Kategori Baru Anda", key=f"add_new_user_sub_category_button_{selected_category}"):
+                if new_sub_category_name and selected_category:
+                    if new_sub_category_name in notes_data["user_notes"][selected_category]:
+                        st.session_state.user_notes_message = f"Sub-kategori '{new_sub_category_name}' sudah ada di '{selected_category}'. Silakan pilih nama lain atau edit yang sudah ada."
+                        st.session_state.user_notes_message_type = 'warning'
+                    else:
+                        if new_sub_category_type == "Daftar Item":
+                            items = [item.strip() for item in (new_sub_category_content_input or "").split('\n') if item.strip()]
+                            notes_data["user_notes"][selected_category][new_sub_category_name] = items
+                        else: # Teks Tunggal
+                            notes_data["user_notes"][selected_category][new_sub_category_name] = (new_sub_category_content_input or "").strip()
+
+                        save_json_data(notes_data, USER_NOTES_FILE)
+                        st.session_state.user_notes_message = f"Sub-kategori '{new_sub_category_name}' berhasil ditambahkan ke '{selected_category}'!"
+                        st.session_state.user_notes_message_type = 'success'
+                    st.rerun()
+                else:
+                    st.session_state.user_notes_message = "Nama sub-kategori dan isi tidak boleh kosong."
+                    st.session_state.user_notes_message_type = 'warning'
+                    st.rerun()
+
+            st.markdown("---")
+            st.subheader("Hapus Sub-Kategori Anda")
+            sub_category_to_delete_user = st.selectbox("Pilih Sub-Kategori yang akan dihapus:", [""] + sub_categories, key=f"delete_user_sub_category_select_{selected_category}")
+            
+            if sub_category_to_delete_user: # Pindahkan if ini ke sini
+                confirm_sub_user = st.checkbox(f"Saya yakin ingin menghapus sub-kategori '{sub_category_to_delete_user}' Anda", key=f"confirm_delete_user_sub_category_{selected_category}")
+                if st.button(f"Hapus Sub-Kategori '{sub_category_to_delete_user}' Anda", key=f"delete_user_sub_category_button_{selected_category}"):
+                    if confirm_sub_user:
+                        del notes_data["user_notes"][selected_category][sub_category_to_delete_user]
+                        save_json_data(notes_data, USER_NOTES_FILE)
+                        st.session_state.user_notes_message = f"Sub-kategori '{sub_category_to_delete_user}' Anda berhasil dihapus."
+                        st.session_state.user_notes_message_type = 'success'
+                        st.rerun()
+                    else:
+                        st.session_state.user_notes_message = "Centang kotak konfirmasi untuk menghapus."
+                        st.session_state.user_notes_message_type = 'info'
+                        st.rerun()
+
+
+        elif isinstance(current_content, list):
+            edited_list_str = st.text_area(
+                "Edit daftar item (satu item per baris):",
+                value="\n".join(current_content),
+                height=250,
+                key=f"edit_user_category_list_area_{selected_category}"
+            )
+            updated_items = [item.strip() for item in edited_list_str.split('\n') if item.strip()]
+            if st.button("Simpan Perubahan Kategori Anda", key=f"save_user_category_list_btn_{selected_category}"):
+                notes_data["user_notes"][selected_category] = updated_items
+                save_json_data(notes_data, USER_NOTES_FILE)
+                st.session_state.user_notes_message = f"Kategori '{selected_category}' berhasil diperbarui!"
+                st.session_state.user_notes_message_type = 'success'
+                st.rerun()
+
+        elif isinstance(current_content, str):
+            edited_str_value = st.text_input(
+                "Edit nilai:",
+                value=current_content,
+                key=f"edit_user_category_string_input_{selected_category}"
+            )
+            if st.button("Simpan Perubahan Kategori Anda", key=f"save_user_category_string_btn_{selected_category}"):
+                notes_data["user_notes"][selected_category] = edited_str_value
+                save_json_data(notes_data, USER_NOTES_FILE)
+                st.session_state.user_notes_message = f"Kategori '{selected_category}' berhasil diperbarui!"
+                st.session_state.user_notes_message_type = 'success'
+                st.rerun()
+        else:
+            st.info("Tipe data tidak didukung untuk pengeditan langsung di sini (bukan daftar, teks, atau kamus).")
+            st.text_area("Konten JSON mentah (untuk debugging/pengeditan manual):", json.dumps(current_content, indent=4, ensure_ascii=False), height=200, disabled=True)
+
+
+    # --- Hapus Kategori dari Catatan Pengguna ---
+    st.markdown("---")
+    st.subheader("Hapus Kategori dari Catatan Tersimpan Anda")
+    categories_to_delete_user_main = list(notes_data["user_notes"].keys()) 
+    category_to_delete_user_main = st.selectbox("Pilih Kategori yang akan dihapus:", [""] + categories_to_delete_user_main, key="delete_user_main_category_select")
+    
+    if category_to_delete_user_main: # Pindahkan if ini ke sini
+        confirm_user_main = st.checkbox(f"Saya yakin ingin menghapus kategori '{category_to_delete_user_main}' Anda", key="confirm_delete_user_main_category")
+        if st.button(f"Hapus Kategori '{category_to_delete_user_main}' Anda", key="delete_user_main_category_button"):
+            if confirm_user_main:
+                del notes_data["user_notes"][category_to_delete_user_main]
+                save_json_data(notes_data, USER_NOTES_FILE)
+                st.session_state.user_notes_message = f"Kategori '{category_to_delete_user_main}' berhasil dihapus."
+                st.session_state.user_notes_message_type = 'success'
+                st.rerun()
+            else:
+                st.session_state.user_notes_message = "Centang kotak konfirmasi untuk menghapus."
+                st.session_state.user_notes_message_type = 'info'
+                st.rerun()
 
 
 # --- Fungsi Utama Aplikasi ---
@@ -709,9 +644,9 @@ def main():
         st.session_state.current_page = "default_notes" # Halaman default saat aplikasi dimulai
 
     page_options = {
-        "📔 Catatan Default Happy Pet": "default_notes",
-        "🍯 Catatan Anda": "user_notes",
-        "⚙️ Edit Catatan Utama": "edit_default_notes"
+        "Catatan Default Happy Pet": "default_notes",
+        "Catatan Anda": "user_notes",
+        "Edit Catatan Utama": "edit_default_notes"
     }
 
     # Menentukan index awal berdasarkan current_page
@@ -735,10 +670,80 @@ def main():
         if "user_notes" not in user_notes_data:
             user_notes_data["user_notes"] = {}
             save_json_data(user_notes_data, USER_NOTES_FILE)
-        # Menampilkan catatan pengguna DAN fitur manajemen
-        display_notes_data(user_notes_data["user_notes"], show_management_features=True)
+        
+        # Menampilkan catatan pengguna
+        display_notes_data(user_notes_data["user_notes"])
+
+        # Menampilkan fitur manajemen catatan pengguna
+        st.markdown("---")
+        st.header("⚙️ Kelola Catatan Anda") # Judul untuk bagian manajemen
+
+        # Menampilkan pesan konfirmasi yang disimpan di session_state
+        if 'user_notes_message' in st.session_state and st.session_state.user_notes_message:
+            if st.session_state.user_notes_message_type == 'success':
+                st.success(st.session_state.user_notes_message)
+            elif st.session_state.user_notes_message_type == 'warning':
+                st.warning(st.session_state.user_notes_message)
+            elif st.session_state.user_notes_message_type == 'info':
+                st.info(st.session_state.user_notes_message)
+            st.session_state.user_notes_message = "" # Reset pesan setelah ditampilkan
+            st.session_state.user_notes_message_type = ""
+
+        user_notes_full_data = load_json_data(USER_NOTES_FILE)
+        # Pastikan struktur "user_notes" ada
+        if "user_notes" not in user_notes_full_data:
+            user_notes_full_data["user_notes"] = {}
+            save_json_data(user_notes_full_data, USER_NOTES_FILE)
+        
+        user_notes_data_for_management = user_notes_full_data # Menggunakan variabel yang sudah dimuat
+
+        # --- Tambah Kategori Baru ---
+        st.subheader("Tambah Kategori Baru Anda")
+        new_category_name = st.text_input("Nama Kategori Baru:", key="new_user_category_name")
+        new_category_type = st.radio("Tipe Konten Kategori Baru:", ["Teks Tunggal", "Daftar Item", "Sub-Kategori (Nested Dictionary)"], key="new_user_category_type")
+
+        new_category_content = None
+        if new_category_type == "Daftar Item":
+            new_category_content = st.text_area("Isi Daftar Item (satu item per baris):", height=100, key="new_user_category_list_content")
+        elif new_category_type == "Teks Tunggal":
+            new_category_content = st.text_input("Isi Teks Tunggal:", key="new_user_category_text_content")
+        else: # Sub-Kategori (Nested Dictionary)
+            st.info("Untuk menambah sub-kategori, masukkan nama kategori kosong dan kemudian edit di bagian 'Edit Catatan Anda yang Ada'.")
+            new_category_content = {} # Inisialisasi sebagai dictionary kosong
+
+        if st.button("Tambah Kategori Baru Anda", key="add_new_user_category_button"):
+            if new_category_name:
+                if new_category_name in user_notes_data_for_management["user_notes"]:
+                    st.session_state.user_notes_message = f"Kategori '{new_category_name}' sudah ada. Silakan pilih nama lain atau edit yang sudah ada."
+                    st.session_state.user_notes_message_type = 'warning'
+                else:
+                    if new_category_type == "Daftar Item":
+                        items = [item.strip() for item in (new_category_content or "").split('\n') if item.strip()]
+                        user_notes_data_for_management["user_notes"][new_category_name] = items
+                    elif new_category_type == "Teks Tunggal":
+                        user_notes_data_for_management["user_notes"][new_category_name] = (new_category_content or "").strip()
+                    else: # Sub-Kategori (Nested Dictionary)
+                        user_notes_data_for_management["user_notes"][new_category_name] = {}
+
+                    save_json_data(user_notes_data_for_management, USER_NOTES_FILE)
+                    st.session_state.user_notes_message = f"Kategori '{new_category_name}' berhasil ditambahkan!"
+                    st.session_state.user_notes_message_type = 'success'
+                st.rerun()
+            else:
+                st.session_state.user_notes_message = "Nama kategori tidak boleh kosong."
+                st.session_state.user_notes_message_type = 'warning'
+                st.rerun()
+
+        # --- Edit Konten yang Ada ---
+        st.markdown("---")
+        st.subheader("Edit Catatan Anda yang Ada")
+        categories_to_edit_user = list(user_notes_data_for_management["user_notes"].keys())
+        selected_category_to_edit_user = st.selectbox("Pilih Kategori untuk diedit:", [""] + categories_to_edit_user, key="edit_user_category_select_combined")
+
+        edit_user_notes_content(user_notes_full_data, selected_category_to_edit_user) # Memanggil fungsi pembantu
+        
+
     elif st.session_state.current_page == "edit_default_notes":
-        st.title("⚙️ Edit Catatan Utama") # Judul untuk halaman admin
         edit_default_notes_page()
 
 if __name__ == "__main__":
