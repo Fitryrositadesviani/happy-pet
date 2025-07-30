@@ -29,7 +29,8 @@
             "Gorila",
             "Bajing Tanah",
             "Beruang",
-            "Billfish"
+            "Billfish",
+            "Burung Unta"
         ],
         "Anonim (Tidak Dikategorikan)": [
             "Rafflesia"
@@ -82,7 +83,7 @@
     "Shio Cina": {
         "Daftar Shio": [
             "Tikus",
-            "Kerbau",
+            "Sapi",
             "Harimau",
             "Kelinci",
             "Naga",
@@ -132,7 +133,8 @@
             "Grup 3": [
                 "Harimau",
                 "Kuda",
-                "Anjing"
+                "Anjing",
+                "Sapi"
             ],
             "Grup 4": [
                 "Kelinci",
@@ -161,6 +163,7 @@
         "Organ Terbesar Manusia": "Kulit",
         "Jumlah Gigi Saat Dewasa": 32,
         "Grup Otot Terlebar dalam Tubuh Manusia": "Bukan Rhomboid",
+        "Grup Otor Terbesar dalam Tubuh Manusia": "Gluteus Maximus",
         "Kuku Terbentuk dari Zat": "Keratin",
         "Zat Pembentuk Kulit dan Rambut": "(Tidak ada item spesifik yang diberikan)",
         "Terumbu Karang Terbesar Sedunia di Laut Coral": "Terumbu Penghalang Besar",
@@ -177,7 +180,7 @@
         "Samudra Terbesar": "Samudra Pasifik",
         "Samudra Terkecil": "Samudra Arktik",
         "Persen Air Tawar di Bumi": "2.5%",
-        "Yang Dapat Diakses (Air Tawar)": "0.007%"
+        "Yang Dapat Diakses (Air Tawar)": "0,007%"
     },
     "Warna & Ilmu Pengetahuan": {
         "Sinar Biru + Sinar Merah": "Magenta",
@@ -197,18 +200,29 @@
         "Songkran": "13 April",
         "Musim Gugur (Belahan Bumi Utara)": "23 September - 21 Desember",
         "Musim Gugur (Belahan Bumi Selatan)": "21 Maret - 21 Juni",
-        "Hari Pertama Musim Semi (Astronomis)": "20 Maret - 21 Juni"
+        "Hari Pertama Musim Semi (Astronomis)": "20 Maret - 21 Juni",
+        "Hari Pertama Musim Dingin (Astronomis)": "21 - 22 Desember"
     },
     "Zodiak & Elemen (Barat)": {
-        "Zodiak Elemen Air": [
+        "Elemen Air": [
             "Pisces",
             "Scorpio",
             "Cancer"
         ],
-        "Zodiak Elemen Tanah": [
+        "Elemen Tanah": [
             "Capri",
             "Virgo",
             "Taurus"
+        ],
+        "Elemen Api": [
+            "Sagitarius",
+            "Leo",
+            "Aries"
+        ],
+        "Elemen Udara": [
+            "Aquarius",
+            "Gemini",
+            "Libra"
         ],
         "Urutan Zodiak": [
             "Capricorn",
@@ -281,12 +295,11 @@
             "Cokelat Panas"
         ],
         "Maksimum Kertas Dilipat": "(Tidak ada item spesifik yang diberikan)",
-        "Batas Maks Kertas Dilipat": "(Tidak ada item spesifik yang diberikan)",
         "Pencipta David Tembaga, di Bargello": "Bukan Michelangelo, Bukan Donarte Levidi, Bukan Salvador Doli",
         "Pencipta The Scream": "Edward Munch",
         "Pencipta Pieta": "Michelangelo",
         "Pelukis The Persistence of Memory": "Salvador Doli",
-        "Pencipta The Sistine Madonna": "(Tidak ada item spesifik yang diberikan)"
+        "Pencipta The Sistine Madonna": "Raphael"
     },
     "Ikan Bulan Juni": {
         "Muncul di Bulan Juni": [
