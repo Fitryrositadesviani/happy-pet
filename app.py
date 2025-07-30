@@ -4,7 +4,7 @@ import os
 
 # --- Konfigurasi Aplikasi (Lambang, Judul, Tema) ---
 st.set_page_config(
-    page_title="Catatan Happy Pet",
+    page_title="Catatan Ceria Happy Pet",
     page_icon="🐾", # Lambang baru
     layout="wide",
     initial_sidebar_state="expanded",
@@ -31,7 +31,7 @@ CATEGORY_COLORS = {
     "Astronomi & Geografi": "#F0E6FF",
     "Warna & Ilmu Pengetahuan": "#E6FFEA",
     "Waktu & Kalender": "#FFE6E6",
-    "Zodiak & Elemen": "#FFFFE0",
+    "Zodiak & Elemen (Barat)": "#FFFFE0",
     "Hari Kebangsaan": "#F5E6FF",
     "Musik": "#E0FFE0",
     "Lain-lain": "#FDFDBD",
@@ -155,7 +155,7 @@ def display_section_content(content_dict, level):
 
 def display_notes_data(notes_data_to_display, selected_category_to_show=None):
     """Menampilkan data catatan yang sudah ada dalam format rapi."""
-    # st.title("📔 Catatan Happy Pet") # Judul ini akan diatur di main()
+    st.title("📔 Catatan Happy Pet & Pengetahuan Umum")
 
     # Tampilkan daftar kategori sebagai link navigasi
     st.subheader("Daftar Kategori:")
@@ -189,7 +189,8 @@ def display_notes_data(notes_data_to_display, selected_category_to_show=None):
             st.markdown(f"<a id='{target_category.replace(' ', '_')}'></a>", unsafe_allow_html=True)
 
             st.markdown(f"<div class='category-card' style='background-color: {bg_color};'>", unsafe_allow_html=True)
-            st.header(f"🌷 Kategori: {target_category}") # ICON DI SINI
+            st.header(f"🌷 {target_category}")
+
             if isinstance(content, dict):
                 display_section_content(content, level=1)
             elif isinstance(content, list):
@@ -207,8 +208,7 @@ def display_notes_data(notes_data_to_display, selected_category_to_show=None):
                 if category != target_category:
                     bg_color = CATEGORY_COLORS.get(category, SECONDARY_BACKGROUND_COLOR)
                     st.markdown(f"<div class='category-card' style='background-color: {bg_color};'>", unsafe_allow_html=True)
-                    st.header(f"🌷 Kategori: {category}") # ICON DI SINI
-                    st.markdown(f"<a id='{category.replace(' ', '_')}'></a>", unsafe_allow_html=True)
+                    st.header(f"🌷 {category}")
                     if isinstance(content, dict):
                         display_section_content(content, level=1)
                     elif isinstance(content, list):
@@ -226,7 +226,7 @@ def display_notes_data(notes_data_to_display, selected_category_to_show=None):
             st.markdown(f"<a id='{category.replace(' ', '_')}'></a>", unsafe_allow_html=True)
 
             st.markdown(f"<div class='category-card' style='background-color: {bg_color};'>", unsafe_allow_html=True)
-            st.header(f"🌷 {category}") # ICON DI SINI
+            st.header(f"🌷 {category}")
 
             if isinstance(content, dict):
                 display_section_content(content, level=1)
@@ -250,8 +250,8 @@ def display_notes_data(notes_data_to_display, selected_category_to_show=None):
 
 # --- Fungsi untuk Mengelola Catatan Default ---
 def edit_default_notes_page():
-    st.title("⚙️ Edit Catatan Utama")
-    st.warning("Halaman ini ditujukan untuk mengedit catatan utama. Perubahan di sini akan mempengaruhi semua pengguna.")
+    st.title("⚙️ Edit Catatan Default Happy Pet")
+    st.warning("Halaman ini ditujukan untuk mengedit catatan default. Perubahan di sini akan mempengaruhi semua pengguna.")
 
     # Menampilkan pesan konfirmasi yang disimpan di session_state
     if 'edit_default_message' in st.session_state and st.session_state.edit_default_message:
@@ -267,7 +267,7 @@ def edit_default_notes_page():
     default_notes = load_json_data(DEFAULT_NOTES_FILE)
 
     if not default_notes:
-        st.error("Tidak dapat memuat catatan utama untuk diedit. Pastikan file 'default_notes.json' ada dan formatnya benar.")
+        st.error("Tidak dapat memuat catatan default untuk diedit. Pastikan file 'default_notes.json' ada dan formatnya benar.")
         return
 
     # --- Tambah Kategori Baru ---
@@ -452,7 +452,7 @@ def edit_default_notes_page():
 
     # --- Hapus Kategori dari Catatan Default ---
     st.markdown("---")
-    st.subheader("Hapus Kategori dari Catatan utama")
+    st.subheader("Hapus Kategori dari Catatan Default")
     category_to_delete = st.selectbox("Pilih Kategori yang akan dihapus:", [""] + categories, key="delete_default_main_category_select")
     if category_to_delete and st.button(f"Hapus Kategori '{category_to_delete}'", key="delete_default_main_category_button"):
         confirm = st.checkbox(f"Saya yakin ingin menghapus kategori '{category_to_delete}'", key="confirm_delete_default_main_category")
@@ -471,16 +471,7 @@ def edit_default_notes_page():
 # --- Fungsi Utama Aplikasi ---
 def main():
     st.sidebar.title("Navigasi Utama")
-    # PERUBAHAN UTAMA DI SINI UNTUK URUTAN DAN NAMA SESUAI PERMINTAAN
-    page_selection = st.sidebar.radio(
-        "Pilih Halaman",
-        [
-            "Catatan Default Happy Pet",
-            "Edit Catatan Default",
-            "Lihat Catatan Tersimpan",
-            "Tambah Catatan Baru"
-        ]
-    )
+    page_selection = st.sidebar.radio("Pilih Halaman", ["Catatan Default Happy Pet", "Lihat Catatan Tersimpan", "Edit Catatan Default", "Tambah Catatan Baru"])
 
     # Inisialisasi session state untuk kategori yang dipilih jika belum ada
     if 'selected_category_nav' not in st.session_state:
@@ -497,97 +488,14 @@ def main():
         st.session_state.user_notes_message_type = ""
 
 
-    # Logika pemilihan halaman
-    if page_selection == "Catatan Default Happy Pet": # SESUAI DENGAN NAMA DI SIDEBAR
-        st.title("📔 Catatan Default Happy Pet") # Judul Halaman Utama
+    if page_selection == "Catatan Default Happy Pet":
         default_notes = load_json_data(DEFAULT_NOTES_FILE)
         if default_notes:
             display_notes_data(default_notes)
         else:
-            st.info("Tidak ada catatan utama yang ditemukan atau ada kesalahan saat memuat.")
+            st.info("Tidak ada catatan default yang ditemukan atau ada kesalahan saat memuat.")
 
-    elif page_selection == "Edit Catatan Default": # SESUAI DENGAN NAMA DI SIDEBAR
-        edit_default_notes_page()
-
-    elif page_selection == "Lihat Catatan Tersimpan": # SESUAI DENGAN NAMA DI SIDEBAR
-        st.title("🍯 Catatan Anda") # IKON YANG DIMINTA
-        notes = load_json_data(USER_NOTES_FILE)
-
-        # Menampilkan pesan konfirmasi yang disimpan di session_state
-        if 'user_notes_message' in st.session_state and st.session_state.user_notes_message:
-            if st.session_state.user_notes_message_type == 'success':
-                st.success(st.session_state.user_notes_message)
-            elif st.session_state.user_notes_message_type == 'warning':
-                st.warning(st.session_state.user_notes_message)
-            elif st.session_state.user_notes_message_type == 'info':
-                st.info(st.session_state.user_notes_message)
-            st.session_state.user_notes_message = "" # Reset pesan setelah ditampilkan
-            st.session_state.user_notes_message_type = ""
-
-        if "user_notes" in notes and notes["user_notes"]:
-            # --- Tampilkan Daftar Kategori sebagai Navigasi ---
-            st.subheader("Daftar Kategori Anda:")
-            col_idx = 0
-            cols = st.columns(4)
-            user_categories = list(notes["user_notes"].keys())
-            
-            if 'user_scroll_to_category' not in st.session_state:
-                st.session_state.user_scroll_to_category = None
-
-            for category_name in user_categories:
-                with cols[col_idx]:
-                    if st.button(category_name, key=f"user_nav_btn_{category_name}"):
-                        st.session_state.user_selected_category_nav = category_name
-                        st.session_state.user_scroll_to_category = category_name
-                col_idx = (col_idx + 1) % 4
-            
-            st.markdown("---")
-
-            # --- Tampilkan Catatan Berdasarkan Kategori ---
-            target_category = st.session_state.get('user_selected_category_nav')
-
-            if target_category and target_category in notes["user_notes"]:
-                st.header(f"🌷 Kategori: {target_category}") # IKON YANG DIMINTA
-                st.markdown(f"<a id='user_{target_category.replace(' ', '_')}'></a>", unsafe_allow_html=True)
-                
-                category_content = notes["user_notes"][target_category]
-                if isinstance(category_content, dict):
-                    display_section_content(category_content, level=1)
-                elif isinstance(category_content, list):
-                    for item in category_content:
-                        st.markdown(f"- {item}")
-                else:
-                    st.markdown(f"- {category_content}")
-                
-                st.markdown("---")
-                st.subheader("Kategori Anda Lainnya:")
-                for category, content in notes["user_notes"].items():
-                    if category != target_category:
-                        st.header(f"🌷 Kategori: {category}") # IKON YANG DIMINTA
-                        st.markdown(f"<a id='user_{category.replace(' ', '_')}'></a>", unsafe_allow_html=True)
-                        if isinstance(content, dict):
-                            display_section_content(content, level=1)
-                        elif isinstance(content, list):
-                            for item in content:
-                                st.markdown(f"- {item}")
-                        else:
-                            st.markdown(f"- {content}")
-            else:
-                # Jika tidak ada kategori yang dipilih, tampilkan semua user notes
-                for category, content in notes["user_notes"].items():
-                    st.header(f"🌷 Kategori: {category}") # IKON YANG DIMINTA
-                    st.markdown(f"<a id='user_{category.replace(' ', '_')}'></a>", unsafe_allow_html=True)
-                    if isinstance(content, dict):
-                        display_section_content(content, level=1)
-                    elif isinstance(content, list):
-                        for item in content:
-                            st.markdown(f"- {item}")
-                    else:
-                        st.markdown(f"- {content}")
-        else:
-            st.info("Anda belum memiliki catatan tersimpan. Tambahkan catatan baru terlebih dahulu!")
-
-    elif page_selection == "Tambah Catatan Baru": # SESUAI DENGAN NAMA DI SIDEBAR
+    elif page_selection == "Tambah Catatan Baru":
         st.title("➕ Tambah Catatan Baru")
 
         # Menampilkan pesan konfirmasi yang disimpan di session_state
@@ -660,6 +568,196 @@ def main():
                 st.rerun()
 
 
-# Panggil fungsi utama saat aplikasi dijalankan
+    elif page_selection == "Lihat Catatan Tersimpan":
+        st.title("🍯 Catatan Anda")
+        notes = load_json_data(USER_NOTES_FILE)
+
+        # Menampilkan pesan konfirmasi yang disimpan di session_state
+        if 'user_notes_message' in st.session_state and st.session_state.user_notes_message:
+            if st.session_state.user_notes_message_type == 'success':
+                st.success(st.session_state.user_notes_message)
+            elif st.session_state.user_notes_message_type == 'warning':
+                st.warning(st.session_state.user_notes_message)
+            elif st.session_state.user_notes_message_type == 'info':
+                st.info(st.session_state.user_notes_message)
+            st.session_state.user_notes_message = "" # Reset pesan setelah ditampilkan
+            st.session_state.user_notes_message_type = ""
+
+        if "user_notes" in notes and notes["user_notes"]:
+            # --- Tampilkan Daftar Kategori sebagai Navigasi ---
+            st.subheader("Daftar Kategori Anda:")
+            col_idx = 0
+            cols = st.columns(4)
+            user_categories = list(notes["user_notes"].keys())
+            
+            if 'user_scroll_to_category' not in st.session_state:
+                st.session_state.user_scroll_to_category = None
+
+            for category_name in user_categories:
+                with cols[col_idx]:
+                    if st.button(category_name, key=f"user_nav_btn_{category_name}"):
+                        st.session_state.user_selected_category_nav = category_name
+                        st.session_state.user_scroll_to_category = category_name
+                col_idx = (col_idx + 1) % 4
+            
+            st.markdown("---")
+
+            # --- Tampilkan Catatan Berdasarkan Kategori ---
+            target_category = st.session_state.get('user_selected_category_nav')
+
+            if target_category and target_category in notes["user_notes"]:
+                st.header(f"🌷 Kategori: {target_category}")
+                st.markdown(f"<a id='user_{target_category.replace(' ', '_')}'></a>", unsafe_allow_html=True)
+                
+                category_content = notes["user_notes"][target_category]
+                if isinstance(category_content, dict):
+                    display_section_content(category_content, level=1)
+                elif isinstance(category_content, list):
+                    for item in category_content:
+                        st.markdown(f"- {item}")
+                else:
+                    st.markdown(f"- {category_content}")
+                
+                st.markdown("---")
+                st.subheader("Kategori Anda Lainnya:")
+                for category, content in notes["user_notes"].items():
+                    if category != target_category:
+                        st.header(f"🌷 Kategori: {category}")
+                        st.markdown(f"<a id='user_{category.replace(' ', '_')}'></a>", unsafe_allow_html=True)
+                        if isinstance(content, dict):
+                            display_section_content(content, level=1)
+                        elif isinstance(content, list):
+                            for item in content:
+                                st.markdown(f"- {item}")
+                        else:
+                            st.markdown(f"- {content}")
+            else: # Tampilkan semua jika tidak ada yang dipilih
+                for category, content in notes["user_notes"].items():
+                    st.header(f"🌷 Kategori: {category}")
+                    st.markdown(f"<a id='user_{category.replace(' ', '_')}'></a>", unsafe_allow_html=True)
+                    if isinstance(content, dict):
+                        display_section_content(content, level=1)
+                    elif isinstance(content, list):
+                        for item in content:
+                            st.markdown(f"- {item}")
+                    else:
+                        st.markdown(f"- {content}")
+
+            # JavaScript untuk menggulir ke elemen dengan ID tertentu
+            if st.session_state.user_scroll_to_category:
+                category_id = f"user_{st.session_state.user_scroll_to_category.replace(' ', '_')}"
+                st.markdown(f"""
+                    <script>
+                        document.getElementById('{category_id}').scrollIntoView({{behavior: 'smooth'}});
+                    </script>
+                """, unsafe_allow_html=True)
+                st.session_state.user_scroll_to_category = None # Reset scroll state
+
+            # --- Bagian Edit dan Hapus Catatan ---
+            st.markdown("---")
+            st.subheader("Edit/Hapus Catatan Anda")
+
+            # Pilihan Kategori untuk Edit/Hapus
+            edit_delete_category = st.selectbox(
+                "Pilih Kategori Catatan untuk diedit/dihapus:",
+                [""] + user_categories,
+                key="edit_delete_user_category"
+            )
+
+            if edit_delete_category:
+                notes_in_category = notes["user_notes"].get(edit_delete_category, {})
+                note_titles_in_category = list(notes_in_category.keys())
+
+                selected_note_to_modify = st.selectbox(
+                    f"Pilih Catatan di Kategori '{edit_delete_category}':",
+                    [""] + note_titles_in_category,
+                    key="select_user_note_to_modify"
+                )
+
+                if selected_note_to_modify:
+                    current_content = notes_in_category[selected_note_to_modify]
+
+                    st.markdown(f"**Mengedit: {edit_delete_category} > {selected_note_to_modify}**")
+
+                    # Menentukan tipe konten saat ini untuk memilih widget yang tepat
+                    current_content_type = "Teks Tunggal"
+                    if isinstance(current_content, list):
+                        current_content_type = "Daftar Item"
+                    
+                    # Input untuk judul baru
+                    new_note_title = st.text_input("Judul Baru:", value=selected_note_to_modify, key="edit_user_note_title_input")
+
+                    # Input untuk konten baru
+                    if current_content_type == "Daftar Item":
+                        edited_content_input = st.text_area(
+                            "Edit daftar item (satu item per baris):",
+                            value="\n".join(current_content),
+                            height=200,
+                            key="edit_user_note_list_area"
+                        )
+                    else: # Teks Tunggal
+                        edited_content_input = st.text_area(
+                            "Edit isi catatan:",
+                            value=current_content,
+                            height=200,
+                            key="edit_user_note_text_area"
+                        )
+                    
+                    col_edit_del_btns = st.columns(2)
+
+                    with col_edit_del_btns[0]:
+                        if st.button("Simpan Perubahan Catatan", key="update_user_note_button"):
+                            if new_note_title and edited_content_input:
+                                # Hapus catatan lama jika judul berubah
+                                if new_note_title != selected_note_to_modify:
+                                    del notes["user_notes"][edit_delete_category][selected_note_to_modify]
+                                    # Jika kategori menjadi kosong setelah penghapusan, hapus kategori juga
+                                    if not notes["user_notes"][edit_delete_category]:
+                                        del notes["user_notes"][edit_delete_category]
+                                        
+                                # Simpan catatan dengan judul baru dan konten baru
+                                if current_content_type == "Daftar Item":
+                                    updated_items = [item.strip() for item in edited_content_input.split('\n') if item.strip()]
+                                    # Pastikan kategori ada sebelum menyimpan
+                                    if edit_delete_category not in notes["user_notes"]:
+                                        notes["user_notes"][edit_delete_category] = {}
+                                    notes["user_notes"][edit_delete_category][new_note_title] = updated_items
+                                else:
+                                    # Pastikan kategori ada sebelum menyimpan
+                                    if edit_delete_category not in notes["user_notes"]:
+                                        notes["user_notes"][edit_delete_category] = {}
+                                    notes["user_notes"][edit_delete_category][new_note_title] = edited_content_input.strip()
+
+                                save_json_data(notes, USER_NOTES_FILE)
+                                st.session_state.user_notes_message = f"Catatan '{new_note_title}' di kategori '{edit_delete_category}' berhasil diperbarui!"
+                                st.session_state.user_notes_message_type = 'success'
+                                st.rerun()
+                            else:
+                                st.session_state.user_notes_message = "Judul dan isi catatan tidak boleh kosong."
+                                st.session_state.user_notes_message_type = 'warning'
+                                st.rerun()
+
+                    with col_edit_del_btns[1]:
+                        if st.button(f"Hapus Catatan '{selected_note_to_modify}'", key=f"delete_user_note_{selected_note_to_modify}"):
+                            confirm_delete = st.checkbox(f"Saya yakin ingin menghapus catatan '{selected_note_to_modify}'", key=f"confirm_delete_user_note_{selected_note_to_modify}")
+                            if confirm_delete:
+                                del notes["user_notes"][edit_delete_category][selected_note_to_modify]
+                                # Jika kategori menjadi kosong setelah penghapusan, hapus kategori juga
+                                if not notes["user_notes"][edit_delete_category]:
+                                    del notes["user_notes"][edit_delete_category]
+                                save_json_data(notes, USER_NOTES_FILE)
+                                st.session_state.user_notes_message = f"Catatan '{selected_note_to_modify}' di kategori '{edit_delete_category}' berhasil dihapus!"
+                                st.session_state.user_notes_message_type = 'success'
+                                st.rerun()
+                            else:
+                                st.session_state.user_notes_message = "Centang kotak konfirmasi untuk menghapus catatan."
+                                st.session_state.user_notes_message_type = 'info'
+                                st.rerun()
+        else:
+            st.info("Anda belum memiliki catatan yang disimpan.")
+
+    elif page_selection == "Edit Catatan Default":
+        edit_default_notes_page()
+
 if __name__ == "__main__":
     main()
