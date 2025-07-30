@@ -418,7 +418,7 @@ def edit_default_notes_page():
                     else:
                         st.session_state.edit_default_message = "Centang kotak konfirmasi untuk menghapus."
                         st.session_state.edit_default_message_type = 'info'
-                        st.rerun() # Rerun untuk menampilkan info
+                        # st.rerun() # Tidak perlu rerun jika hanya menampilkan pesan info
 
 
         elif isinstance(current_category_content, list):
@@ -456,7 +456,8 @@ def edit_default_notes_page():
     # --- Hapus Kategori dari Catatan Default ---
     st.markdown("---")
     st.subheader("Hapus Kategori dari Catatan utama")
-    category_to_delete = st.selectbox("Pilih Kategori yang akan dihapus:", [""] + categories, key="delete_default_main_category_select")
+    categories_to_delete_default = list(default_notes.keys()) # Gunakan nama variabel yang berbeda
+    category_to_delete = st.selectbox("Pilih Kategori yang akan dihapus:", [""] + categories_to_delete_default, key="delete_default_main_category_select")
     
     # PENTING: Pindahkan st.checkbox ke luar blok if st.button
     if category_to_delete:
@@ -471,7 +472,7 @@ def edit_default_notes_page():
             else:
                 st.session_state.edit_default_message = "Centang kotak konfirmasi untuk menghapus."
                 st.session_state.edit_default_message_type = 'info'
-                st.rerun()
+                # st.rerun() # Tidak perlu rerun jika hanya menampilkan pesan info
 
 
 # --- Fungsi untuk Mengelola Catatan Pengguna ---
@@ -581,7 +582,7 @@ def edit_user_notes_content(notes_data, selected_category):
                     else:
                         st.session_state.user_notes_message = "Centang kotak konfirmasi untuk menghapus."
                         st.session_state.user_notes_message_type = 'info'
-                        st.rerun()
+                        # st.rerun()
 
         elif isinstance(current_content, list):
             edited_list_str = st.text_area(
@@ -617,27 +618,27 @@ def edit_user_notes_content(notes_data, selected_category):
     # --- Hapus Kategori dari Catatan Pengguna ---
     st.markdown("---")
     st.subheader("Hapus Kategori dari Catatan Tersimpan Anda")
-    categories = list(notes_data["user_notes"].keys())
-    category_to_delete = st.selectbox("Pilih Kategori yang akan dihapus:", [""] + categories, key="delete_user_main_category_select")
+    categories_to_delete_user = list(notes_data["user_notes"].keys()) # Gunakan nama variabel yang berbeda
+    category_to_delete_user = st.selectbox("Pilih Kategori yang akan dihapus:", [""] + categories_to_delete_user, key="delete_user_main_category_select")
     
     # PENTING: Pindahkan st.checkbox ke luar blok if st.button
-    if category_to_delete:
-        confirm = st.checkbox(f"Saya yakin ingin menghapus kategori '{category_to_delete}' Anda", key="confirm_delete_user_main_category")
-        if st.button(f"Hapus Kategori '{category_to_delete}' Anda", key="delete_user_main_category_button"):
-            if confirm:
-                del notes_data["user_notes"][category_to_delete]
+    if category_to_delete_user:
+        confirm_user = st.checkbox(f"Saya yakin ingin menghapus kategori '{category_to_delete_user}' Anda", key="confirm_delete_user_main_category")
+        if st.button(f"Hapus Kategori '{category_to_delete_user}' Anda", key="delete_user_main_category_button"):
+            if confirm_user:
+                del notes_data["user_notes"][category_to_delete_user]
                 save_json_data(notes_data, USER_NOTES_FILE)
-                st.session_state.user_notes_message = f"Kategori '{category_to_delete}' berhasil dihapus."
+                st.session_state.user_notes_message = f"Kategori '{category_to_delete_user}' berhasil dihapus."
                 st.session_state.user_notes_message_type = 'success'
                 st.rerun()
             else:
                 st.session_state.user_notes_message = "Centang kotak konfirmasi untuk menghapus."
                 st.session_state.user_notes_message_type = 'info'
-                st.rerun()
+                # st.rerun()
 
 
 def manage_user_notes_page():
-    st.title("📝 Catatan Tersimpan Anda")
+    st.title("📝 Kelola Catatan Tersimpan Anda")
 
     # Menampilkan pesan konfirmasi yang disimpan di session_state
     if 'user_notes_message' in st.session_state and st.session_state.user_notes_message:
@@ -717,8 +718,8 @@ def main():
 
     page_selection = st.sidebar.radio(
         "Pilih Halaman:",
-        ["Catatan Utama", "Catatan Tersimpan Anda", "Edit Catatan Utama"],
-        index=0 if st.session_state.current_page == "default_notes" else (1 if st.session_state.current_page == "user_notes" else 2)
+        ["Catatan Utama", "Catatan Tersimpan Anda", "Kelola Catatan Tersimpan", "Edit Catatan Utama"],
+        index=0 if st.session_state.current_page == "default_notes" else (1 if st.session_state.current_page == "user_notes" else (2 if st.session_state.current_page == "manage_user_notes" else 3))
     )
 
     if page_selection == "Catatan Utama":
@@ -735,7 +736,7 @@ def main():
     elif page_selection == "Edit Catatan Utama":
         st.session_state.current_page = "edit_default_notes"
         edit_default_notes_page()
-    elif page_selection == "Kelola Catatan Tersimpan":
+    elif page_selection == "Kelola Catatan Tersimpan": # Ini akan menangani tambah, edit, hapus catatan pengguna
         st.session_state.current_page = "manage_user_notes"
         manage_user_notes_page()
 
