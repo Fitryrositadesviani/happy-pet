@@ -387,4 +387,4 @@ def edit_default_notes_page():
                     else:
                         if new_sub_category_type == "Daftar Item":
                             items = [item.strip() for item in (new_sub_category_content_input or "").split('\n') if item.strip()]
-                            default_notes[selected_category][new_sub_category_name
+                            default_notes[selected_category
