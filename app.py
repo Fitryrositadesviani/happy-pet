@@ -480,6 +480,7 @@ def main():
         st.session_state.user_edit_mode = False
         st.session_state.user_edit_category = None
         st.session_state.user_edit_title = None
+        st.session_state.user_edit_content_type = None # Tambahkan ini
 
     if page_selection == "Catatan Default Happy Pet":
         default_notes = load_json_data(DEFAULT_NOTES_FILE)
@@ -610,45 +611,30 @@ def main():
                         st.markdown(f"<p class='sub-category-title'>{note_title}:</p>", unsafe_allow_html=True)
                         if isinstance(note_value, list):
                             st.markdown(f"<p class='sub-category-item'>{'<br>'.join(note_value)}</p>", unsafe_allow_html=True)
-                            
-                            edit_col, delete_col = st.columns([1, 1])
-                            with edit_col:
-                                if st.button(f"✏️ Edit '{note_title}'", key=f"edit_user_note_{target_category}_{note_title}"):
-                                    st.session_state.user_edit_mode = True
-                                    st.session_state.user_edit_category = target_category
-                                    st.session_state.user_edit_title = note_title
-                                    st.session_state.user_edit_content_type = "Daftar Item"
-                                    st.rerun()
-                            with delete_col:
-                                if st.button(f"🗑️ Hapus '{note_title}'", key=f"delete_user_note_{target_category}_{note_title}"):
-                                    del notes["user_notes"][target_category][note_title]
-                                    if not notes["user_notes"][target_category]:
-                                        del notes["user_notes"][target_category]
-                                    save_json_data(notes, USER_NOTES_FILE)
-                                    st.session_state.user_notes_message = f"Catatan '{note_title}' berhasil dihapus dari '{target_category}'."
-                                    st.session_state.user_notes_message_type = 'success'
-                                    st.rerun()
-
                         elif isinstance(note_value, str):
                             st.markdown(f"<p class='sub-category-item'>{note_value}</p>", unsafe_allow_html=True)
-                            
-                            edit_col, delete_col = st.columns([1, 1])
-                            with edit_col:
-                                if st.button(f"✏️ Edit '{note_title}'", key=f"edit_user_note_{target_category}_{note_title}"):
-                                    st.session_state.user_edit_mode = True
-                                    st.session_state.user_edit_category = target_category
-                                    st.session_state.user_edit_title = note_title
-                                    st.session_state.user_edit_content_type = "Teks Tunggal"
-                                    st.rerun()
-                            with delete_col:
-                                if st.button(f"🗑️ Hapus '{note_title}'", key=f"delete_user_note_{target_category}_{note_title}"):
-                                    del notes["user_notes"][target_category][note_title]
-                                    if not notes["user_notes"][target_category]:
-                                        del notes["user_notes"][target_category]
-                                    save_json_data(notes, USER_NOTES_FILE)
-                                    st.session_state.user_notes_message = f"Catatan '{note_title}' berhasil dihapus dari '{target_category}'."
-                                    st.session_state.user_notes_message_type = 'success'
-                                    st.rerun()
+                        
+                        edit_col, delete_col = st.columns([1, 1])
+                        with edit_col:
+                            # Gunakan key unik untuk setiap tombol edit
+                            if st.button(f"✏️ Edit '{note_title}'", key=f"edit_user_note_{target_category}_{note_title}"):
+                                st.session_state.user_edit_mode = True
+                                st.session_state.user_edit_category = target_category
+                                st.session_state.user_edit_title = note_title
+                                st.session_state.user_edit_content_type = "Daftar Item" if isinstance(note_value, list) else "Teks Tunggal"
+                                st.rerun() # Panggil rerun setelah mengatur semua state yang diperlukan
+                        with delete_col:
+                            # Gunakan key unik untuk setiap tombol hapus
+                            if st.button(f"🗑️ Hapus '{note_title}'", key=f"delete_user_note_{target_category}_{note_title}"):
+                                del notes["user_notes"][target_category][note_title]
+                                # Hapus kategori jika sudah kosong
+                                if not notes["user_notes"][target_category]:
+                                    del notes["user_notes"][target_category]
+                                save_json_data(notes, USER_NOTES_FILE)
+                                st.session_state.user_notes_message = f"Catatan '{note_title}' berhasil dihapus dari '{target_category}'."
+                                st.session_state.user_notes_message_type = 'success'
+                                st.rerun()
+
                         st.markdown("") # Spasi antar catatan
                 else:
                     st.markdown("Format catatan tidak didukung untuk tampilan ini.")
@@ -713,48 +699,37 @@ def main():
                         st.header(f"🌷 Kategori: {category}")
                         st.markdown(f"<a id='user_{category.replace(' ', '_')}'></a>", unsafe_allow_html=True)
                         if isinstance(content, dict):
-                            display_section_content(content, level=1)
+                            for note_title, note_value in content.items():
+                                st.markdown(f"<p class='sub-category-title'>{note_title}:</p>", unsafe_allow_html=True)
+                                if isinstance(note_value, list):
+                                    st.markdown(f"<p class='sub-category-item'>{'<br>'.join(note_value)}</p>", unsafe_allow_html=True)
+                                elif isinstance(note_value, str):
+                                    st.markdown(f"<p class='sub-category-item'>{note_value}</p>", unsafe_allow_html=True)
+                                
+                                # Tombol edit dan hapus untuk setiap catatan
+                                edit_col, delete_col = st.columns([1, 1])
+                                with edit_col:
+                                    if st.button(f"✏️ Edit '{note_title}'", key=f"edit_user_note_all_{category}_{note_title}"):
+                                        st.session_state.user_edit_mode = True
+                                        st.session_state.user_edit_category = category
+                                        st.session_state.user_edit_title = note_title
+                                        st.session_state.user_edit_content_type = "Daftar Item" if isinstance(note_value, list) else "Teks Tunggal"
+                                        st.rerun() # Panggil rerun
+                                with delete_col:
+                                    if st.button(f"🗑️ Hapus '{note_title}'", key=f"delete_user_note_all_{category}_{note_title}"):
+                                        del notes["user_notes"][category][note_title]
+                                        if not notes["user_notes"][category]:
+                                            del notes["user_notes"][category]
+                                        save_json_data(notes, USER_NOTES_FILE)
+                                        st.session_state.user_notes_message = f"Catatan '{note_title}' berhasil dihapus dari '{category}'."
+                                        st.session_state.user_notes_message_type = 'success'
+                                        st.rerun()
+                                st.markdown("") # Spasi antar catatan
                         elif isinstance(content, list):
                             for item in content:
                                 st.markdown(f"- {item}")
                         else:
                             st.markdown(f"- {content}")
-            else: # Tampilkan semua kategori jika tidak ada yang dipilih (saat pertama kali dibuka)
-                for category, content in notes["user_notes"].items():
-                    st.header(f"🌷 Kategori: {category}")
-                    st.markdown(f"<a id='user_{category.replace(' ', '_')}'></a>", unsafe_allow_html=True)
-                    if isinstance(content, dict):
-                        for note_title, note_value in content.items():
-                            st.markdown(f"<p class='sub-category-title'>{note_title}:</p>", unsafe_allow_html=True)
-                            if isinstance(note_value, list):
-                                st.markdown(f"<p class='sub-category-item'>{'<br>'.join(note_value)}</p>", unsafe_allow_html=True)
-                            elif isinstance(note_value, str):
-                                st.markdown(f"<p class='sub-category-item'>{note_value}</p>", unsafe_allow_html=True)
-                            
-                            # Tombol edit dan hapus untuk setiap catatan
-                            edit_col, delete_col = st.columns([1, 1])
-                            with edit_col:
-                                if st.button(f"✏️ Edit '{note_title}'", key=f"edit_user_note_all_{category}_{note_title}"):
-                                    st.session_state.user_edit_mode = True
-                                    st.session_state.user_edit_category = category
-                                    st.session_state.user_edit_title = note_title
-                                    st.session_state.user_edit_content_type = "Daftar Item" if isinstance(note_value, list) else "Teks Tunggal"
-                                    st.rerun()
-                            with delete_col:
-                                if st.button(f"🗑️ Hapus '{note_title}'", key=f"delete_user_note_all_{category}_{note_title}"):
-                                    del notes["user_notes"][category][note_title]
-                                    if not notes["user_notes"][category]:
-                                        del notes["user_notes"][category]
-                                    save_json_data(notes, USER_NOTES_FILE)
-                                    st.session_state.user_notes_message = f"Catatan '{note_title}' berhasil dihapus dari '{category}'."
-                                    st.session_state.user_notes_message_type = 'success'
-                                    st.rerun()
-                            st.markdown("") # Spasi antar catatan
-                    elif isinstance(content, list):
-                        for item in content:
-                            st.markdown(f"- {item}")
-                    else:
-                        st.markdown(f"- {content}")
             
             # JavaScript untuk scroll
             if st.session_state.user_scroll_to_category:
